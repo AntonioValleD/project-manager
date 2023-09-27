@@ -1,32 +1,54 @@
-import { DateTime } from "luxon";
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { updateSelectedProject } from "../../features/projects/selectedProjectSlice";
-import { addProjectTab } from "../../features/project_tabs/projectTabSlice";
-import "bootstrap/dist/css/bootstrap.min.css";
-import toast, { Toaster } from 'react-hot-toast';
-import DataTable from "react-data-table-component";
-import SeacrhBar from "./SearchBar";
-import NewDeleteButton from "../assets/buttons/NewDelete";
-import NewProjectModal from "../modals/NewProjectModal";
-import DeleteProjectModal from "../modals/DeleteProjectModal";
+import { DateTime } from "luxon"
+import { useSelector, useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { addProjectTab } from "../../features/project_tabs/projectTabSlice"
+import { openProject } from "../../features/appIndexStatus/appIndexStatusSlice"
+import "bootstrap/dist/css/bootstrap.min.css"
+import toast, { Toaster } from 'react-hot-toast'
+import DataTable from "react-data-table-component"
+import SeacrhBar from "./SearchBar"
+import NewDeleteButton from "../assets/buttons/NewDelete"
+import NewProjectModal from "../modals/NewProjectModal"
+import DeleteProjectModal from "../modals/DeleteProjectModal"
 
 
 function ProjectList() {
   // Hooks
-  const dispatch = useDispatch();
-
+  const dispatch = useDispatch()
 
   // Redux state
-  const selectedProjectOt = useSelector(state => state.selectedProject).selected;
-  const projectList = useSelector(state => state.projectList);
+  const projectList = useSelector(state => state.projectList)
 
 
   // React state
-  const [filteredProjects, filterProjects] = useState(projectList);
+  const [filteredProjects, filterProjects] = useState(projectList)
 
-  
+  const [nextUpdate, setNextUpdate] = useState(true)
+
+  const [windowResolution, setWindowResolution] = useState({
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight
+  })
+
+  const [selectedProject, setSelectedProject] = useState("")
+
+
+  window.addEventListener('resize', () => {
+    if (nextUpdate){
+      setWindowResolution({
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight
+      })
+      setNextUpdate(false)
+      setTimeout(() => {
+        setNextUpdate(true)
+      }, 2000)
+    }
+  })
+
+
+
   // Table columns definition
   const columns = [
     {
@@ -39,14 +61,14 @@ function ProjectList() {
     },
     {
       name: "Microsip",
-      selector: (row) => row.microsipOt,
+      selector: (row) => row.projectInfo.microsipOt,
       sortable: true,
       width: "7%",
       center: true
     },
     {
       name: "Nombre",
-      selector: (row) => row.projectName,
+      selector: (row) => row.projectInfo.name,
       sortable: false,
       with: '21%',
       center: true,
@@ -54,40 +76,28 @@ function ProjectList() {
     },
     {
       name: "Estado",
-      selector: (row) => row.status,
+      selector: (row) => row.projectInfo.status,
       sortable: false,
       width: '7%',
       center: true
     },
     {
       name: "Cliente",
-      selector: (row) => row.client,
+      selector: (row) => row.projectInfo.client,
       sortable: false,
       width: '13%',
       center: true
     },
     {
       name: "Solicitante",
-      selector: (row) => row.clientUser,
+      selector: (row) => row.projectInfo.clientUser,
       sortable: false,
       width: "15%",
       center: true
     },
     {
       name: "Material",
-      selector: (row) => {
-        if (row.materialRequestQuantity){
-          if (row.materialRequestQuantity <= 0){
-            return "Sin solicitar";
-          } else if (row.materialRequestQuantity > 0 && row.materialRequestQuantity < row.partModelsQuantity){
-            return "Incompleto";
-          } else {
-            return "Solicitado";
-          }
-        } else {
-          return "Sin solicitar";
-        }
-      },
+      selector: (row) => row.projectInfo.materialStatus,
       sortable: true,
       center: true,
       width: "8%"
@@ -95,7 +105,7 @@ function ProjectList() {
     {
       name: "Fecha de inicio",
       selector: (row) => {
-        return DateTime.fromISO(row.startDate).toLocaleString(DateTime.DATE_MED);
+        return DateTime.fromISO(row.projectInfo.startDate).toLocaleString(DateTime.DATE_MED);
       },
       sortable: false,
       width: "9%",
@@ -104,7 +114,7 @@ function ProjectList() {
     {
       name: "Fecha estimada",
       selector: (row) => {
-        return DateTime.fromISO(row.estimatedFinishDate).toLocaleString(DateTime.DATE_MED);
+        return DateTime.fromISO(row.projectInfo.estimatedFinishDate).toLocaleString(DateTime.DATE_MED);
       },
       sortable: false,
       width: "9%",
@@ -113,10 +123,10 @@ function ProjectList() {
     {
       name: "Fecha de cierre",
       selector: (row) => {
-        if (row.finishDate === ""){
-          return "N/A"
+        if (row.projectInfo.finishDate === ""){
+          return "Sin fecha"
         } else {
-          return DateTime.fromISO(row.finishDate).toLocaleString(DateTime.DATE_MED);
+          return DateTime.fromISO(row.projectInfo.finishDate).toLocaleString(DateTime.DATE_MED);
         }
       },
       sortable: false,
@@ -129,7 +139,8 @@ function ProjectList() {
       sortable: false,
       omit: true,
     },
-  ];
+  ]
+
 
   // Custom styles
   const customStyles = {
@@ -160,10 +171,10 @@ function ProjectList() {
     },
     table: {
       style: {
-        minHeight: "525px"
+        height: `${parseInt(windowResolution.height - 145)}px`
       }
     },
-  };
+  }
 
 
   // Pagination config
@@ -172,29 +183,35 @@ function ProjectList() {
     rangeSeparatorText: 'de',
     selectAllRowsItem: true,
     selectAllRowsItemText: 'Todos',
-  };
+  }
 
   
   // Conditional row styles
   let conditionalRowStyles = [
     {
-      when: row => row.ot === selectedProjectOt,
+      when: row => row.ot === selectedProject,
       style: {
         backgroundColor: 'rgb(21 128 61)',
         color: 'white',
       }
     },
-  ];
+  ]
+
 
   // Select row function
-  const selectRow = async (ot) => {
-    dispatch(updateSelectedProject(ot));
-  };
+  const selectRow = (ot) => {
+    setSelectedProject(ot)
+  }
+
 
   // Double click row function
   const addNewTab = (projectOt) => {
-    dispatch(addProjectTab(projectOt));
-  };
+    dispatch(addProjectTab(projectOt))
+    dispatch(openProject({
+      ot: projectOt
+    }))
+  }
+
 
   // NewDeleteButton functions
   const newBtn = () => {
@@ -204,7 +221,9 @@ function ProjectList() {
         modalStatus: true
       }
     ))
-  };
+  }
+
+
   const searchInput = (input) => {
     let inputValue = input.value.toLowerCase();
     let search = projectList.filter((project) => {
@@ -219,29 +238,30 @@ function ProjectList() {
         project.finishDate.toLowerCase().includes(inputValue) || 
         project.materialStatus.toLowerCase().includes(inputValue)
       ){
-        return project;
+        return project
       }
-    });
+    })
     filterProjects([...search])
-  };
+  }
+
 
   const deleteBtn = () => {
-    if (selectedProjectOt){
-      dispatch(changeModalStatus({modalName: 'delete', modalStatus: true}));
-    } else if (selectedProjectOt === ''){
-      dispatch(changeModalStatus({modalName: 'noProjectSelected', modalStatus: true}));
+    if (selectedProject === ""){
+      dispatch(changeModalStatus({modalName: 'noProjectSelected', modalStatus: true}))
+    } else {
+      dispatch(changeModalStatus({modalName: 'delete', modalStatus: true}))
     }
-  };
+  }
 
 
   const successNotify = (message) => {
-    toast.success(message);
-  };
+    toast.success(message)
+  }
 
 
   // Modal window selector
-  const modalStatus = useSelector(state => state.modalStatus);
-  let modalWindow;
+  const modalStatus = useSelector(state => state.modalStatus)
+  let modalWindow
   if (modalStatus.delete){
     modalWindow = <DeleteProjectModal
       successFn={successNotify}
@@ -266,8 +286,10 @@ function ProjectList() {
   
 
   return (
-    <div className="w-full px-2 pt-2 rounded-sm">
-      <div className="mb-4 flex items-center gap-4 w-full">
+    <div className="mt-2">
+      <div 
+        className="mb-2 flex items-center gap-4 w-full"
+      >
         <SeacrhBar
           inputText={searchInput}
         />
@@ -276,6 +298,7 @@ function ProjectList() {
           deleteBtn={deleteBtn}
         />
       </div>
+
       <div>
         <DataTable
           columns={columns}
@@ -297,7 +320,9 @@ function ProjectList() {
           paginationPerPage={15}
         />
       </div>
+
       {modalWindow}
+
       <Toaster
         toastOptions={{
           position: "top-center",

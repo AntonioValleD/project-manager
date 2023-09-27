@@ -1,24 +1,22 @@
-import { useSelector, useDispatch } from "react-redux";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { deleteProject } from "../../features/projects/projectListSlice";
-import { updateSelectedProject } from "../../features/projects/selectedProjectSlice";
-import RedButton from "../assets/buttons/RedButton";
-import GreenButton from "../assets/buttons/GreenButton";
+import { useSelector, useDispatch } from "react-redux"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { deleteProject } from "../../features/projects/projectListSlice"
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
 
 function DeleteProjectModal(props) {
   // Hooks
-  const dispatch = useDispatch();
-  const selectedProjectOt = useSelector(state => state.selectedProject).selected;
+  const dispatch = useDispatch()
+  const selectedProjectOt = useSelector(state => state.selectedProject).selected
 
   /* Funtions */
   const aceptButton = () => {
-    dispatch(deleteProject(selectedProjectOt));
-    dispatch(updateSelectedProject(''));
+    dispatch(deleteProject(selectedProjectOt))
     props.successFn("El proyecto se ha eliminado correctamente!");
     cancelButton();
   }
   const cancelButton = () => {
-    dispatch(changeModalStatus({modalName: 'delete', modalStatus: false}));
+    dispatch(changeModalStatus({modalName: 'delete', modalStatus: false}))
   };
 
   return (

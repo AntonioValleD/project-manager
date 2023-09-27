@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
 import { addPart, unselectPart, updatePartInfo } from "../../features/partsSlice.js/partsSlice";
 import { editProject, updateModelsQuantity } from "../../features/projects/projectListSlice";
-import { updateSelectedPart } from "../../features/selectedPartSlice/selectedPartSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 import AlertInfoModal from "./AlertInfoModal";
@@ -172,7 +171,6 @@ function NewPartModal(props) {
 
   // Add new part function
   const addNewPart = () => {
-    dispatch(unselectPart({partOt: selectedOt}));
     dispatch(addPart({
       newPart: newPart,
       partOt: selectedOt
@@ -225,10 +223,6 @@ function NewPartModal(props) {
       newPart: newPart,
     }))
 
-    dispatch(updateSelectedPart({
-      ot: selectedOt,
-      id: newPart.id,
-    }))
     props.successFn("La información se actualizó correctamente!");
     dispatch(changeModalStatus({
       modalName: "newPart",

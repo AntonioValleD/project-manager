@@ -1,61 +1,61 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
+import { useDispatch } from "react-redux"
+import { openProject } from "../../features/appIndexStatus/appIndexStatusSlice"
 
 
 function TabNav(props) {
+  // Hooks 
+  const dispatch = useDispatch()
+
+
   // Local component state
-  const [tabList, setTabList] = useState(props.data);
-  const [startIndex, setStartIndex] = useState(0);
+  const [tabList, setTabList] = useState(props.data)
+  const [startIndex, setStartIndex] = useState(0)
 
 
   // Increase/Decrease start index 
   const increaseStartIndex = () => {
-    let totalTabs = props.data.length;
+    let totalTabs = props.data.length
     if ((totalTabs - startIndex) > 6){
-      setStartIndex(startIndex + 1);
+      setStartIndex(startIndex + 1)
     }
-  };
+  }
 
   const decreaseStartIndex = () => {
     if (startIndex > 0){
-      setStartIndex(startIndex - 1);
+      setStartIndex(startIndex - 1)
     }
-  };
+  }
   
 
   useEffect(() => {
     if (props.data.length > 6){
-      setStartIndex(props.data.length - 6);
+      setStartIndex(props.data.length - 6)
     }
   }, [])
 
   useEffect(() => {
     if (props.data.length > 6){
-      let counter = startIndex;
+      let counter = startIndex
       if (counter < 0){
-        counter = 0;
+        counter = 0
       }
 
-      let shortTabList = [];
+      let shortTabList = []
       for (let i = 0; i < 6; i ++){
-        shortTabList.push(props.data[counter]);
+        shortTabList.push(props.data[counter])
         counter ++;
       }
-      setTabList([...shortTabList]);
+      setTabList([...shortTabList])
     } else {
-      setTabList([...props.data]);
+      setTabList([...props.data])
     }
   }, [props.data, startIndex])
 
 
   
   return (
-    <div className="flex items-center h-full gap-2 select-none">
-      <button 
-        className={`flex bg-purple-800 rounded-sm h-7 py-2 px-3 items-center text-l font-normal text-white`}
-        onClick={() => props.goHome()}
-      >
-        Inicio
-      </button>
+    <div className="select-none flex items-center gap-x-2 ml-1">
       {
         props.data.length > 6 ?
         <label 

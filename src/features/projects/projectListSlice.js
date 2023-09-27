@@ -4,21 +4,71 @@ import { DateTime } from 'luxon';
 const initialState = [
     {
         ot: '0001',
-        microsipOt: '3254',
-        projectName: 'MANUFACTURA DE GUARDA SEG DESPACHADORA, SEGURO PARA ACUMULADOR Y TROMPETAS',
-        status: 'En proceso',
-        supplier: 'SEAA',
-        client: 'K&S Arneses', 
-        clientUser: 'Rodrigo Martinez Rosales', 
-        startDate: '2021-07-09T00:00:00.000Z',
-        estimatedFinishDate: '2021-07-09T00:00:00.000Z',
-        finishDate: '',
-        oc: '4800088622',
-        partsQuantity: '18',
-        finishedParts: '9',
-        rejectedParts: '3',  
-        materialStatus: 'Sin solicitar',
-        selected: false,
+        projectInfo: {
+            microsipOt: '3254',
+            name: 'MANUFACTURA DE GUARDA SEG DESPACHADORA, SEGURO PARA ACUMULADOR Y TROMPETAS',
+            status: 'En proceso',
+            client: 'K&S Arneses', 
+            clientUser: 'Rodrigo Martinez Rosales', 
+            startDate: '2021-07-09T00:00:00.000Z',
+            estimatedFinishDate: '2021-07-09',
+            finishDate: '2021-07-09T00:00:00.000Z',
+            oc: '4800088622',
+            partsQuantity: 18,
+            totalPartUnits: 25, 
+            finishedParts: 7,
+            totalfinishedPartUnits: 13,
+            rejectedPartUnits: 3,
+            materialStatus: 'Sin solicitar',
+        },
+        parts: [
+            {
+                id: '01',
+                partInfo: {
+                    name: 'Pieza 1',
+                    material: 'Acero 1018',
+                    location: 'Producción',
+                    quantity: '25',
+                    finished: '13',
+                    rejected: '1',
+                    assembly: 'Ensamblaje 1',
+                    type: 'Bloque',
+                    dimentionUnits: 'in',
+                },
+                dimentions:{
+                    units: "in",
+                    generalDimentions: '4" x 4" x 1"',
+                    materialDimentions: '4 1/4" x 4 1/4" x 1 1/4"',
+                },
+                processPath: [],
+                qualityInfo: [
+                    {
+                        unitId: '1',
+                        selected: false,
+                        measures: [],
+                    },
+                ],
+                materialRequest: [
+                    {
+                        requestId: '1',
+                        requestNo: 'sccjbsjsdc',
+                        partId: '01',
+                        selected: false,
+                        status: 'Entregado', 
+                        userName: 'Manuel Garcia Valle',
+                        userRequestDate: '2023-05-24T00:00:00.000Z',
+                        warehouseRequestDate: '2023-05-24T00:00:00.000Z',
+                        warehouseArrivalDate: '2023-05-24T00:00:00.000Z',
+                        userDeliveryDate: '2023-05-24T00:00:00.000Z',
+                        material: "Acero 4140T",
+                        generalDimetions: "4 x 4 x 6",
+                        materialDimentions: "4 1/8 x 5 1/8 x 6 1/8",
+                        units: "in",
+                        quantity: "8",
+                    }
+                ]
+            }
+        ]
     }
 ];
  
@@ -39,45 +89,15 @@ export const projectListSlice = createSlice({
             }
         },
         editProject: (state, action) => {
-            const project = state.find(project => project.ot === action.payload.ot);
-            const upProject = action.payload.project;
-            if (project){
-                if (upProject.ot){
-                    project.microsipOt = upProject.microsipOt;
-                }
-                if (upProject.microsipOt){
-                    project.microsipOt = upProject.microsipOt;
-                }
-                if (upProject.projectName){
-                    project.projectName = upProject.projectName;
-                }
-                if (upProject.status){
-                    project.status = upProject.status;
-                }
-                if (upProject.client){
-                    project.client = upProject.client;
-                }
-                if (upProject.clientUser){
-                    project.clientUser = upProject.clientUser;
-                }
-                if (upProject.estimatedFinishDate){
-                    project.estimatedFinishDate = upProject.estimatedFinishDate;
-                }
-                if (upProject.finishDate){
-                    project.finishDate = upProject.finishDate;
-                }
-                if (upProject.oc){
-                    project.oc = upProject.oc;
-                }
-                if (upProject.partsQuantity){
-                    project.partsQuantity = upProject.partsQuantity;
-                }
-                if (upProject.finishedParts){
-                    project.finishedParts = upProject.finishedParts;
-                }
-                if (upProject.rejectedParts){
-                    project.rejectedParts = upProject.rejectedParts;
-                }
+            const oldOt = action.payload.oldOt
+            const newOt = action.payload.newOt
+            const projectInfo = {...action.payload.projectInfo}
+
+            const foundProject = state.find(project => project.ot === oldOt)
+
+            if (foundProject){
+                foundProject.ot = newOt
+                foundProject.projectInfo = projectInfo
             }
         },
         deleteProject: (state, action) => { 

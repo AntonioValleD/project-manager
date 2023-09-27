@@ -1,21 +1,46 @@
-import { useSelector, useDispatch } from "react-redux";
-import "bootstrap/dist/css/bootstrap.min.css";
-import DataTable from "react-data-table-component";
-import NewDeleteButton from "../assets/buttons/NewDelete";
-import BlueButton from "../assets/buttons/BlueButton";
-import NoDataComponent from "./NoDataComponent";
-import NewPartModal from "../modals/NewPartModal";
-import DeletePartModal from "../modals/DeletePartModal";
-import { addSelectedPart } from "../../features/selectedPartSlice/selectedPartSlice";
-import { editSelectedPart } from "../../features/partsSlice.js/partsSlice";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import toast, { Toaster } from "react-hot-toast";
+import { useSelector, useDispatch } from "react-redux"
+import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css"
+import DataTable from "react-data-table-component"
+import NewDeleteButton from "../assets/buttons/NewDelete"
+import BlueButton from "../assets/buttons/BlueButton"
+import NoDataComponent from "./NoDataComponent"
+import NewPartModal from "../modals/NewPartModal"
+import DeletePartModal from "../modals/DeletePartModal"
+import { editSelectedPart } from "../../features/partsSlice.js/partsSlice"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import toast, { Toaster } from "react-hot-toast"
 
 function PartsTable() {
-  const dispatch = useDispatch();
-  const selectedOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id;
-  const partListProject = (useSelector((state) => state.partList)).find(project => project.ot === selectedOt);
-  let partList;
+  const dispatch = useDispatch()
+
+  const selectedOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id
+
+  const partListProject = (useSelector((state) => state.partList)).find(project => project.ot === selectedOt)
+
+
+  // Local state
+  const [windowResolution, setWindowResolution] = useState({
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight
+  })
+  const [nextUpdate, setNextUpdate] = useState(true)
+
+
+  window.addEventListener('resize', () => {
+    if (nextUpdate){
+      setWindowResolution({
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight
+      })
+      setNextUpdate(false)
+      setTimeout(() => {
+        setNextUpdate(true)
+      }, 2000)
+    }
+  })
+
+  let partList
   if (partListProject){
     partList = partListProject.parts;
   }
@@ -122,7 +147,7 @@ function PartsTable() {
     },
     table: {
       style: {
-        minHeight: "600px"
+        height: `${parseInt(windowResolution.height - 210)}px`
       }
     }
   };
@@ -154,13 +179,8 @@ function PartsTable() {
 
   // Click row function
   const openPart = (partId) => {
-    dispatch(addSelectedPart(
-      {
-        ot: selectedOt,
-        id: partId
-      }
-    ))
-  };
+  }
+  
   const selectRow = (partId) => {
     dispatch(editSelectedPart(
       {
@@ -230,9 +250,9 @@ function PartsTable() {
   
 
   return (
-    <div className="w-8/12 rounded-sm h-full pl-2">
+    <div className="w-8/12">
       {modalWindow}
-      <div className="my-2 w-full justify-end flex flex-col pr-2">
+      <div className="mb-2 w-full justify-end flex flex-col">
         <label className="text-lg w-full text-center font-semibold text-white">Piezas</label>
         <NewDeleteButton
           newBtn={newBtn}

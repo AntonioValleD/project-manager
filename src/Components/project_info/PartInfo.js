@@ -4,7 +4,6 @@ import NewPartModal from "../modals/NewPartModal";
 import RequestMaterialModal from "../modals/RequestMaterialModal";
 import SetUpQualityInspectionModal from "../modals/SetUpQualityInspectionModal";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteSelectedPart } from "../../features/selectedPartSlice/selectedPartSlice";
 import { selectOption } from "../../features/partOptionSlice/partOptionSlice";
 import planoPdf from "../assets/documents/Plano.pdf";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
@@ -26,8 +25,7 @@ function PartInfo() {
 
   // Close modal window function
   const closePart = () => {
-    dispatch(deleteSelectedPart(selectedTabOt));
-  };
+  }
 
 
   // Progres bar function

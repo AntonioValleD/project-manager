@@ -1,3 +1,4 @@
+import "animate.css"
 import { DateTime } from "luxon";
 import { useSelector, useDispatch } from "react-redux";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
@@ -14,19 +15,23 @@ function ProjectInfo() {
 
 
   // Global redux state
-  const selectedProjectOt = useSelector((state) => state.projectTabs).find((project) => project.selected === true).id;
+  const selectedProjectOt = useSelector((state) => state.appIndex).projectWindow.find((project) => project.selected === true).ot
 
-  const selectedProjectInfo = useSelector((state) => state.projectList).find((project) => project.ot === selectedProjectOt);
+  const selectedProject = useSelector((state) => state.projectList).find((project) => project.ot === selectedProjectOt)
+
+  const selectedProjectInfo = selectedProject.projectInfo
+
 
   const progresPercentage = () =>{
-    if (selectedProjectInfo.finishedParts === "0") {
-      return "0%";
-    } else if (selectedProjectInfo.partsQuantity === "0") {
-      return "100%";
+    if (parseInt(selectedProjectInfo.finishedParts) === 0) {
+      return "0%"
+    } else if (parseInt(selectedProjectInfo.partsQuantity) === 0) {
+      return "100%"
     } else {
-      return ((selectedProjectInfo.finishedParts * 100) / selectedProjectInfo.partsQuantity).toFixed(2) + '%';
+      return ((parseInt(selectedProjectInfo.finishedParts) * 100) / parseInt(selectedProjectInfo.partsQuantity)).toFixed(2) + '%';
     }
   }
+
 
   // Button functions
   const editInfo = () => {
@@ -34,19 +39,20 @@ function ProjectInfo() {
       modalName: "newProject",
       modalStatus: true,
     }))
-  };
+  }
+
 
   const openRequestMaterialWindow = () => {
     dispatch(selectProjectOption({
       ot: selectedProjectOt,
       option: "materialRequest",
     }))
-  };
+  }
 
 
   const successNotify = (message) => {
     toast.success(message);
-  };
+  }
 
 
   // Modal window selector
@@ -56,7 +62,9 @@ function ProjectInfo() {
     if (modalStatus.newProject){
       modalWindow = <NewProjectModal 
         textTitle="Editar proyecto"
+        projectOt={selectedProjectOt}
         projectInfo={selectedProjectInfo}
+        update={true}
         successFn={successNotify}
       />
     }
@@ -64,8 +72,9 @@ function ProjectInfo() {
 
 
   return (
-    <div className="w-5/12 pr-5 rounded-sm text-center h-full text-white">
+    <div className="w-5/12 text-center text-white">
       {modalWindow}
+
       <Toaster
         toastOptions={{
           position: "top-center",
@@ -77,30 +86,35 @@ function ProjectInfo() {
           },
         }}
       />
+
       <label className="text-lg text-white font-semibold justify-center flex">
         Información del proyecto
       </label>
 
       <div className="flex flex-col w-full mb-1">
         <label>Proyecto</label>
-        <label className="bg-white text-black font-semibold rounded-sm">
-          {selectedProjectInfo.projectName}
+
+        <label className="overflow-x-auto bg-white text-black font-semibold rounded-sm">
+          {selectedProjectInfo.name}
         </label>
       </div>
+
 
       <div className="flex gap-x-4 mb-1">
         <div className="flex flex-col">
           <label className="text-white px-3">O.T.</label>
           <label className="bg-white text-black font-semibold rounded-sm">
-            {selectedProjectInfo.ot}
+            {selectedProject.ot}
           </label>
         </div>
+
         <div className="flex flex-col">
           <label>Microsip</label>
           <label className="bg-white text-black font-semibold rounded-sm">
             {selectedProjectInfo.microsipOt}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Cliente</label>
           <label className="bg-white text-black font-semibold rounded-sm">
@@ -109,6 +123,7 @@ function ProjectInfo() {
         </div>
       </div>
 
+
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-full">
           <label>Solicitante</label>
@@ -116,12 +131,14 @@ function ProjectInfo() {
             {selectedProjectInfo.clientUser}
           </label>
         </div>
+
         <div className="flex flex-col w-7/12">
           <label>O.C.</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {selectedProjectInfo.oc}
           </label>
         </div>
+
         <div className="flex flex-col w-5/12">
           <label>Estado</label>
           <label className="bg-white font-semibold rounded-sm text-black">
@@ -130,6 +147,7 @@ function ProjectInfo() {
         </div>
       </div>
 
+
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-full">
           <label>Fecha de inicio</label>
@@ -137,14 +155,17 @@ function ProjectInfo() {
             {DateTime.fromISO(selectedProjectInfo.startDate).toLocaleString(DateTime.DATETIME_MED)}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Fecha estimada</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {DateTime.fromISO(selectedProjectInfo.estimatedFinishDate).toLocaleString(DateTime.DATE_MED)}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Fecha de cierre</label>
+
           <label className="bg-white font-semibold rounded-sm text-black">
             {
               selectedProjectInfo.finishDate === "" ?
@@ -155,9 +176,11 @@ function ProjectInfo() {
         </div>
       </div>
 
+
       <label className="flex justify-center text-lg mt-3 font-semibold text-white">
         Piezas
       </label>
+
 
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-full">
@@ -166,18 +189,21 @@ function ProjectInfo() {
             {selectedProjectInfo.partsQuantity}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Liberadas</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {selectedProjectInfo.finishedParts}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Rechazadas</label>
           <label className="bg-white font-semibold rounded-sm text-black">
-            {selectedProjectInfo.rejectedParts}
+            {selectedProjectInfo.rejectedPartUnits}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label>Faltantes</label>
           <label className="bg-white font-semibold rounded-sm text-black">
@@ -187,9 +213,11 @@ function ProjectInfo() {
         </div>
       </div>
 
+
       <label className="flex justify-center text-lg mt-3 font-semibold text-white">
         Progreso
       </label>
+
 
       <div className="mt-1 h-fit">
         <div
@@ -211,9 +239,11 @@ function ProjectInfo() {
         </div>
       </div>
 
+
       <label className="flex justify-center text-lg mt-3 font-semibold text-white">
         Opciones
       </label>
+
 
       <div className="flex flex-col mt-1 w-full gap-y-2">
         <div className="flex justify-start gap-x-2">
@@ -221,13 +251,16 @@ function ProjectInfo() {
             btnText="Editar"
             btnAction={editInfo}
           />
+
           <BlueButton 
             btnText="Orden de trabajo"
           />
+
           <BlueButton 
             btnText="Solicitudes de insumos"
             btnAction={openRequestMaterialWindow}
           />
+
           <BlueButton 
             btnText="Retrabajos"
           />

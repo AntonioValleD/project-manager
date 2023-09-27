@@ -1,19 +1,21 @@
-import { useSelector } from "react-redux";
-import ProjectStructure from "./ProjectStructure";
-import PartInfo from "./PartInfo";
-import PartProcesses from "./PartProcesses";
-import QualityWindow from "../quality/QualityWindow";
-import MaterialRequestList from "../warehouse/MaterialRequestList";
+import { useSelector } from "react-redux"
+import ProjectStructure from "./ProjectStructure"
+import PartInfo from "./PartInfo"
+import PartProcesses from "./PartProcesses"
+import QualityWindow from "../quality/QualityWindow"
+import MaterialRequestList from "../warehouse/MaterialRequestList"
+
 
 function ProjectInfoWindow() {
   // Global redux state
-  const selectedTabOt = useSelector(state => state.projectTabs).find(tab => tab.selected === true).id;
+  const selectedTabOt = useSelector(state => state.appIndex).projectWindow.find(project => project.selected === true).ot
 
-  const selectedPart = useSelector(state => state.selectedPart).find(part => part.ot === selectedTabOt);
+  const selectedPartOption = ""
 
-  const selectedPartOption = useSelector(state => state.selectedPartOption)[selectedTabOt];
+  const selectedProjectOption = ""
 
-  const selectedProjectOption = useSelector(state => state.projectOption);
+  const selectedPart = false
+
 
   // Content selector
   let content;
@@ -26,18 +28,18 @@ function ProjectInfoWindow() {
         content = <QualityWindow/>
       }
     }
-  } else if (selectedProjectOption.materialRequest.find(ot => ot === selectedTabOt)){
+  } else if (selectedProjectOption){
     content = <MaterialRequestList/>
   } else {
     content = <ProjectStructure/>
   }
 
   return (
-    <div className="w-full h-fit">
+    <>
       {content}
-    </div>
-  );
+    </>
+  )
 }
   
-export default ProjectInfoWindow;
+export default ProjectInfoWindow
   
