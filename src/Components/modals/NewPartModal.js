@@ -1,246 +1,264 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useState, useRef, useEffect } from "react";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { addPart, unselectPart, updatePartInfo } from "../../features/partsSlice.js/partsSlice";
-import { editProject, updateModelsQuantity } from "../../features/projects/projectListSlice";
-import RedButton from "../assets/buttons/RedButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import AlertInfoModal from "./AlertInfoModal";
+import "animate.css"
+import { useSelector, useDispatch } from "react-redux"
+import { useState, useRef, useEffect } from "react"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { addNewPart, updatePartsQuantity } from "../../features/projects/projectListSlice"
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import AlertInfoModal from "./AlertInfoModal"
 
 
 function NewPartModal(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
+
+  // Local component state
   const [error, setError] = useState({
     status: false,
     message: '',
-  }); 
+  })
 
-  const [newPart, setNewPart] = useState({
-    selected: true,
-    id: '',
-    partName: '',
+  const [closeBtn, setClosebtn] = useState(false)
+
+
+  // New part info state
+  const [newPartId, setNewPartId] = useState("")
+
+  const [newPartInfo, setNewPartInfo] = useState({
+    name: '',
     material: '',
-    location: 'Pendiente',
+    location: 'Sin material',
     quantity: '',
-    finished: '0',
-    rejected: '0',
+    finished: 0,
+    rejected: 0,
     assembly: '',
-    qualityProcess: 'Pendiente',
     type: '',
-    dimentionUnits: '',
+  })
+
+  const [newPartDimentions, setNewPartDimentions] = useState({
+    units: '',
     generalDimentions: '',
     materialDimentions: '',
-    currentProcess: 'Pendiente',
-    previousProcess: 'Pendiente',
-    nextProcess: 'pendiente',
-    qualityTable: [],
-    processes: [],
-  });
+  })
 
 
   // Input values
-  const inputValues = (event) => {
-    setNewPart({
-      ...newPart,
-      [event.target.name]: (event.target.value).toString(),
-    });
-  };
+  const newPartInfoValues = (event) => {
+    setNewPartInfo({
+      ...newPartInfo,
+      [event.target.name]: event.target.value
+    })
+  }
+
+  const newPartDimentionsValues = (event) => {
+    setNewPartDimentions({
+      ...newPartDimentions,
+      [event.target.name]: event.target.value
+    })
+  }
 
 
   /* Funtions */
   const closeModal = () => {
-    dispatch(
-      changeModalStatus({
-        modalName: "newPart",
-        modalStatus: false,
-      })
-    );
-  };
+    if (closeBtn){
+      dispatch(
+        changeModalStatus({
+          modalName: "newPart",
+          modalStatus: false,
+        })
+      )
+    }
+  }
+
+  const closeWindow = () => {
+    setClosebtn(true)
+  }
+
 
   // Part info
-  const selectedOt = useSelector(state => state.projectTabs).find(tab => tab.selected === true).id;
+  const selectedOt = useSelector(state => state.projectTabs).find(tab => tab.selected === true).id
 
-  const findProject = useSelector((state) => state.partList).find(project => project.ot === selectedOt);
+  const selectedProject = useSelector(state => state.projectList).find(project => project.ot === selectedOt)
 
-  let partList;
+  const partList = selectedProject.parts
 
-  let partIfExists;
-
-  if (findProject){
-    partList = findProject.parts;
-    if (partList){
-      partIfExists = partList.find(part => part.id === newPart.id);
+  const findPartById = (id) => {
+    let foundPart = partList.find(part => part.id === id)
+    if(foundPart){
+      return true
+    } else {
+      return false
     }
   }
 
 
+  // Input references
+  const partNameInputRef = useRef(null)
+  const idInputRef = useRef(null)
+  const typeInputRef = useRef(null)
+  const assemblyInputRef = useRef(null)
+  const materialInputRef = useRef(null)
+  const quantityInputRef = useRef(null)
+  const unitsInputRef = useRef(null)
+  const generalDimentionsInputRef = useRef(null)
+  const materialDimentionsInputRef = useRef(null)
+
+
   // Submit new part info
-  const submitNewPart = () => {
-    if (newPart.id === "") {
+  const checkPartInfo = () => {
+    if (newPartId === "") {
       setError({
         status: true,
         message: "Ingrese el numero de pieza"
-      });
-      idInputRef.current.focus();
-      return;
-    } else if (partIfExists) {
-      if (!props.partInfo){
-        setError({
-          status: true,
-          message: "El numero de pieza especificado ya existe"
-        });
-        idInputRef.current.focus();
-        return;
-      } else {
-        if (props.partInfo.id !== newPart.id){
-          setError({
-            status: true,
-            message: "El numero de pieza especificado ya existe"
-          });
-          idInputRef.current.focus();
-          return;
-        }
-      }
-    } else if (newPart.partName === "") {
+      })
+      idInputRef.current.focus()
+      return false
+
+    } else if (findPartById(newPartId)) {
+      setError({
+        status: true,
+        message: "El numero de pieza especificado ya existe"
+      })
+      idInputRef.current.focus()
+      return false
+
+    } else if (newPartInfo.name === "") {
       setError({
         status: true,
         message: "Ingrese el nombre de la pieza"
-      });
-      partNameInputRef.current.focus();
-      return;
-    } else if (newPart.type === "") {
+      })
+      partNameInputRef.current.focus()
+      return false
+
+    } else if (newPartInfo.type === "") {
       setError({
         status: true,
         message: "Ingrese el tipo de pieza"
-      });
-      typeInputRef.current.focus();
-      return;
-    } else if (newPart.assembly === "") {
+      })
+      typeInputRef.current.focus()
+      return false
+
+    } else if (newPartInfo.assembly === "") {
       setError({
         status: true,
         message: "Ingrese el nombre del ensamble"
-      });
-      assemblyInputRef.current.focus();
-      return;
-    } else if (newPart.material === "") {
+      })
+      assemblyInputRef.current.focus()
+      return false
+
+    } else if (newPartInfo.material === "") {
       setError({
         status: true,
         message: "Especifique el material de la pieza"
-      });
-      materialInputRef.current.focus();
-      return;
-    } else if (newPart.quantity === "") {
+      })
+      materialInputRef.current.focus()
+      return false
+
+    } else if (newPartInfo.quantity === "") {
       setError({
         status: true,
         message: "Ingrese la cantidad de piezas"
-      });
-      quantityInputRef.current.focus();
-      return;
-    } else if (newPart.dimentionUnits === "") {
+      })
+      quantityInputRef.current.focus()
+      return false
+
+    } else if (newPartDimentions.units === "") {
       setError({
         status: true,
         message: "Especifique las unidades de la pieza"
-      });
-      unitsInputRef.current.focus();
-      return;
-    } else if (newPart.generalDimentions === "") {
+      })
+      unitsInputRef.current.focus()
+      return false
+
+    } else if (newPartDimentions.generalDimentions === "") {
       setError({
         status: true,
         message: "Ingrese las dimensiones generales de la pieza"
-      });
-      generalDimentionsInputRef.current.focus();
-      return;
-    } else if (newPart.materialDimentions === "") {
+      })
+      generalDimentionsInputRef.current.focus()
+      return false
+
+    } else if (newPartDimentions.materialDimentions === "") {
       setError({
         status: true,
         message: "Ingrese las dimensiones generales del material"
-      });
-      materialDimentionsInputRef.current.focus();
-      return;
-    }
-
-    if (!props.partInfo){
-      addNewPart();
+      })
+      materialDimentionsInputRef.current.focus()
+      return false
     } else {
-      updatePart();
+      return true
     }
-  };
+  }
+
+
+  // Submit part info
+  const submitPartInfo = () => {
+    if (!checkPartInfo()){
+      return
+    } else {
+      if (props.update){
+        console.log(newPartInfo)
+      } else {
+        addPart()
+      }
+    }
+  }
 
 
   // Add new part function
-  const addNewPart = () => {
-    dispatch(addPart({
-      newPart: newPart,
-      partOt: selectedOt
-    }));
-    let totalParts = 0;
-    if (partList){
-      partList.forEach((part) => {
-        totalParts += parseInt(part.quantity);
-      })
-      totalParts += parseInt(newPart.quantity);
-    } else {
-      totalParts = parseInt(newPart.quantity);
+  const addPart = () => {
+    let newPart = {
+      id: newPartId,
+      partInfo: newPartInfo,
+      dimentions: newPartDimentions,
+      processPath: {status: "", processList: []},
+      qualityInfo: {status: "Sin revisar", unitList: []},
+      materialRequest: {status: "Sin solicitar", requestList: []},
     }
-    dispatch(editProject({
+
+    dispatch(addNewPart({
       ot: selectedOt,
-      project: {
-        partsQuantity: totalParts.toString()
-      }
+      newPart: newPart
     }))
-    dispatch(updateModelsQuantity({
+
+    dispatch(updatePartsQuantity({
       ot: selectedOt,
-      modelsQuantity: partList.length + 1,
+      partsQuantity: selectedProject.projectInfo.partsQuantity + 1,
+      totalPartUnits: selectedProject.projectInfo.totalPartUnits + parseInt(newPartInfo.quantity)
     }))
-    props.successFn("La pieza se guardó correctamente!");
-    dispatch(
-      changeModalStatus({
-        modalName: "newPart",
-        modalStatus: false,
-      })
-    );
-  };
+
+    props.successFn("La pieza se guardó correctamente!")
+
+    closeWindow()
+  }
 
 
   // Update part info function
-  const updatePart = () => {
-    let totalParts = 0;
-    partList.forEach((part) => {
-        totalParts += parseInt(part.quantity);
-    })
-    totalParts += parseInt(newPart.quantity);
-    totalParts -= parseInt(props.partInfo.quantity)
-    dispatch(editProject({
-      ot: selectedOt,
-      project: {
-        partsQuantity: totalParts.toString()
-      }
-    }))
-    dispatch(updatePartInfo({
-      ot: selectedOt,
-      newPart: newPart,
-    }))
+  // const updatePart = () => {
+  //   let totalParts = 0
+  //   partList.forEach((part) => {
+  //       totalParts += parseInt(part.quantity)
+  //   })
+  //   totalParts += parseInt(newPart.quantity)
+  //   totalParts -= parseInt(props.partInfo.quantity)
+  //   dispatch(editProject({
+  //     ot: selectedOt,
+  //     project: {
+  //       partsQuantity: totalParts.toString()
+  //     }
+  //   }))
+  //   dispatch(updatePartInfo({
+  //     ot: selectedOt,
+  //     newPart: newPart,
+  //   }))
 
-    props.successFn("La información se actualizó correctamente!");
-    dispatch(changeModalStatus({
-      modalName: "newPart",
-      modalStatus: false,
-    }));
-  };
-
-
-  // Input references
-  const partNameInputRef = useRef(null);
-  const idInputRef = useRef(null);
-  const typeInputRef = useRef(null);
-  const assemblyInputRef = useRef(null);
-  const materialInputRef = useRef(null);
-  const quantityInputRef = useRef(null);
-  const unitsInputRef = useRef(null);
-  const generalDimentionsInputRef = useRef(null);
-  const materialDimentionsInputRef = useRef(null);
+  //   props.successFn("La información se actualizó correctamente!")
+  //   dispatch(changeModalStatus({
+  //     modalName: "newPart",
+  //     modalStatus: false,
+  //   }))
+  // }
 
 
   // Error modal controller
@@ -254,34 +272,32 @@ function NewPartModal(props) {
 
 
   // Edit project info controller
-  useEffect(() => {
-    if (props.partInfo){
-      setNewPart({
-        selected: false,
-        id: props.partInfo.id,
-        partName: props.partInfo.partName,
-        material: props.partInfo.material,
-        quantity: props.partInfo.quantity,
-        assembly: props.partInfo.assembly,
-        type: props.partInfo.type,
-        dimentionUnits: props.partInfo.dimentionUnits,
-        generalDimentions: props.partInfo.generalDimentions,
-        materialDimentions: props.partInfo.materialDimentions,
-      })
-    }
-  },[props.partInfo])
+  // useEffect(() => {
+  //   if (props.partInfo){
+  //     setNewPart({
+  //       selected: false,
+  //       id: props.partInfo.id,
+  //       partName: props.partInfo.partName,
+  //       material: props.partInfo.material,
+  //       quantity: props.partInfo.quantity,
+  //       assembly: props.partInfo.assembly,
+  //       type: props.partInfo.type,
+  //       dimentionUnits: props.partInfo.dimentionUnits,
+  //       generalDimentions: props.partInfo.generalDimentions,
+  //       materialDimentions: props.partInfo.materialDimentions,
+  //     })
+  //   }
+  // },[props.partInfo])
 
 
   return (
     <div
-      title="Overlay"
-      style={{ background: "rgba(0, 0, 0, 0.3)" }}
-      className="fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left"
+      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
       <div
-        title="Modal Container"
         style={{ width: "500px" }}
-        className="text-black h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700"
+        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700 animate__animated ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'} animate__faster`}
+        onAnimationEnd={() => closeModal()}
       >
         <div className="flex justify-center text-xl font-semibold pb-2">
           <label>{props.textTitle}</label>
@@ -292,22 +308,23 @@ function NewPartModal(props) {
             <label className="font-medium">No.</label>
             <input
               ref={idInputRef}
-              value={newPart.id}
+              value={newPartId}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="id"
               type="number"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => setNewPartId(event.target.value)}
             />
           </div>
+
           <div className="flex flex-col w-full">
             <label className="font-medium">Nombre</label>
             <input
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               ref={partNameInputRef}
-              value={newPart.partName}
-              name="partName"
+              value={newPartInfo.name}
+              name="name"
               type="text"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartInfoValues(event)}
             />
           </div>
         </div>
@@ -318,19 +335,20 @@ function NewPartModal(props) {
             <input
               className="border-blue-950 border-2 px-1 font-regular rounded-sm w-full"
               ref={typeInputRef}
-              value={newPart.type}
+              value={newPartInfo.type}
               name="type"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartInfoValues(event)}
             />
           </div>
+
           <div className="flex flex-col w-full">
             <label className="font-medium">Ensamble</label>
             <input
               ref={assemblyInputRef}
-              value={newPart.assembly}
+              value={newPartInfo.assembly}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="assembly"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartInfoValues(event)}
             />
           </div>
         </div>
@@ -340,31 +358,33 @@ function NewPartModal(props) {
             <label className="font-medium">Material</label>
             <input
               ref={materialInputRef}
-              value={newPart.material}
+              value={newPartInfo.material}
               className="border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="material"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartInfoValues(event)}
             />
           </div>
+
           <div className="flex flex-col w-4/12">
             <label className="font-medium">Cantidad</label>
             <input
               ref={quantityInputRef}
-              value={newPart.quantity}
+              value={newPartInfo.quantity}
               type="number"
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="quantity"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartInfoValues(event)}
             />
           </div>
+
           <div className="flex flex-col w-4/12">
             <label className="font-medium">Unidades</label>
             <select
               ref={unitsInputRef}
-              value={newPart.dimentionUnits}
+              value={newPartDimentions.units}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
-              name="dimentionUnits"
-              onChange={(event) => inputValues(event)}
+              name="units"
+              onChange={(event) => newPartDimentionsValues(event)}
             >
               <option value={"empty"}></option>
               <option value={"in"}>in</option>
@@ -381,10 +401,10 @@ function NewPartModal(props) {
             <label className="font-medium">Dimensiones generales</label>
             <input
               type="text"
-              value={newPart.generalDimentions}
+              value={newPartDimentions.generalDimentions}
               ref={generalDimentionsInputRef}
               name="generalDimentions"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartDimentionsValues(event)}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
             />
           </div>
@@ -392,10 +412,10 @@ function NewPartModal(props) {
             <label className="font-medium">Dimensiones del material</label>
             <input
               type="text"
-              value={newPart.materialDimentions}
+              value={newPartDimentions.materialDimentions}
               ref={materialDimentionsInputRef}
               name="materialDimentions"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newPartDimentionsValues(event)}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
             />
           </div>
@@ -404,8 +424,8 @@ function NewPartModal(props) {
         {errorInfo}
 
         <div className="flex justify-end gap-x-4 mt-3">
-          <GreenButton btnText="Guardar" btnAction={submitNewPart} />
-          <RedButton btnText="Cancelar" btnAction={closeModal} />
+          <GreenButton btnText="Guardar" btnAction={submitPartInfo} />
+          <RedButton btnText="Cancelar" btnAction={closeWindow} />
         </div>
       </div>
     </div>

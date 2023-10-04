@@ -1,6 +1,5 @@
 import { useDispatch } from "react-redux";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { deleteProcess } from "../../features/partsSlice.js/partsSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 
@@ -10,10 +9,7 @@ function DeleteProcessModal(props) {
 
   /* Funtions */
   const aceptButton = () => {
-    dispatch(deleteProcess({
-      ot: props.ot,
-      processIndex: props.index,
-    }));
+
     cancelButton();
   }
   const cancelButton = () => {

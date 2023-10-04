@@ -1,38 +1,45 @@
-import BlueButton from "../assets/buttons/BlueButton";
-import RedButton from "../assets/buttons/RedButton";
-import NewPartModal from "../modals/NewPartModal";
-import RequestMaterialModal from "../modals/RequestMaterialModal";
-import SetUpQualityInspectionModal from "../modals/SetUpQualityInspectionModal";
-import { useSelector, useDispatch } from "react-redux";
-import { selectOption } from "../../features/partOptionSlice/partOptionSlice";
-import planoPdf from "../assets/documents/Plano.pdf";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import toast, { Toaster } from "react-hot-toast";
+import BlueButton from "../assets/buttons/BlueButton"
+import RedButton from "../assets/buttons/RedButton"
+import NewPartModal from "../modals/NewPartModal"
+import RequestMaterialModal from "../modals/RequestMaterialModal"
+import SetUpQualityInspectionModal from "../modals/SetUpQualityInspectionModal"
+import { useSelector, useDispatch } from "react-redux"
+import { selectOption } from "../../features/partOptionSlice/partOptionSlice"
+import { closePart, changePartAction } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import planoPdf from "../assets/documents/Plano.pdf"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import toast, { Toaster } from "react-hot-toast"
 
 
 function PartInfo() {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Redux toolkit states
-  const selectedTabOt = useSelector((state) => state.projectTabs).find(tab => tab.selected === true).id;
+  const projectIndex = useSelector(state => state.appIndex).projectWindow.find(project => project.selected === true)
 
-  const selectedPartId = useSelector((state) => state.selectedPart).find(part => part.ot === selectedTabOt).partId;
+  const selectedPartId = projectIndex.partOptions.selectedPart
 
-  const partInfo = useSelector((state) => state.partList).find(project => project.ot === selectedTabOt).parts.find((part) => part.id === selectedPartId);
+  const selectedPart = useSelector(state => state.projectList).find(project => project.ot === projectIndex.ot).parts.find(part => part.id === selectedPartId)
 
+  const partInfo = selectedPart.partInfo
+
+  const partDimentions = selectedPart.dimentions
 
   // Close modal window function
-  const closePart = () => {
+  const closeSelectedPart = () => {
+    dispatch(closePart({
+      ot: projectIndex.ot
+    }))
   }
 
 
   // Progres bar function
   const progresPercentage = () => {
-    if (partInfo.finished === "0") {
+    if (partInfo.finished === 0) {
       return "0%";
-    } else if (partInfo.quantity === "0") {
+    } else if (partInfo.quantity === 0) {
       return "100%";
     } else {
       return ((partInfo.finished * 100) / partInfo.quantity).toFixed(2) + '%';
@@ -41,59 +48,51 @@ function PartInfo() {
 
 
   // Part option functions
-  const openPartProcesses = () => {
-    dispatch(selectOption(
-      {
-        ot: selectedTabOt,
-        option: 'processes',
-      }
-    ))
-  };
-
-  const openQualityPanel = () => {
-    if (partInfo.qualitySettings){
-      dispatch(selectOption(
-        {
-          ot: selectedTabOt,
-          option: 'quality',
-        }
-      ))
-    } else {
-      dispatch(changeModalStatus({
-        modalName: "setUpQualityInspection",
-        modalStatus: true,
-      }))
-    }
-  };
-
-  const editPartInfo = () => {
-    dispatch(changeModalStatus({
-      modalName: "newPart",
-      modalStatus: "true"
+  const openProcessPath = () => {
+    dispatch(changePartAction({
+      actionName: "processPath",
+      actionStatus: true
     }))
-  };
+  }
 
-  const requestMaterialAction = () => {
-    dispatch(changeModalStatus({
-      modalName: "requestMaterial",
-      modalStatus: true,
+  const openInspectPart = () => {
+    dispatch(changePartAction({
+      actionName: "inspectPart",
+      actionStatus: true
     }))
-  };
+  }
 
-  const reworkRequest = () => {
-    console.log("ReworkRequest");
-  };
+  const openEditPart = () => {
+    dispatch(changePartAction({
+      actionName: "edit",
+      actionStatus: true
+    }))
+  }
+
+  const openRequestMaterial = () => {
+    dispatch(changePartAction({
+      actionName: "requestMaterial",
+      actionStatus: true
+    }))
+  }
+
+  const openReworkRequest = () => {
+    dispatch(changePartAction({
+      actionName: "reeworkRequest",
+      actionStatus: true
+    }))
+  }
 
 
   // Success notify function
   const successNotify = (message) => {
-    toast.success(message);
+    toast.success(message)
   }
 
 
   // Modal window selector
   let modalWindow;
-  const modalStatus = useSelector(state => state.modalStatus);
+  const modalStatus = useSelector(state => state.modalStatus)
 
   if (modalStatus.newPart){
     modalWindow = <NewPartModal 
@@ -115,7 +114,7 @@ function PartInfo() {
 
   // Component
   return (
-    <div className="flex w-full h-fit items-center text-white">
+    <div className="flex w-full h-fit items-center text-white ml-1">
       {modalWindow}
       <Toaster
         toastOptions={{
@@ -129,7 +128,7 @@ function PartInfo() {
         }}
       />
 
-      <div className="w-5/12 pl-2 pr-3 rounded-sm text-center h-full">
+      <div className="w-5/12 pr-3 rounded-sm text-center h-full">
         <label className="text-lg text-white font-semibold justify-center flex">
           Información de pieza
         </label>
@@ -138,13 +137,13 @@ function PartInfo() {
           <div className="flex flex-col w-4/12">
             <label>No.</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.id}
+              {selectedPartId}
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Nombre</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.partName}
+              {partInfo.name}
             </label>
           </div>
           <div className="flex flex-col w-full">
@@ -171,13 +170,13 @@ function PartInfo() {
           <div className="flex flex-col w-9/12">
             <label>Calidad</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.qualityProcess}
+              {selectedPart.qualityInfo.status}
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Material</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.material}
+              {selectedPart.materialRequest.status}
             </label>
           </div>
         </div>
@@ -186,19 +185,19 @@ function PartInfo() {
           <div className="flex flex-col w-full">
             <label>Dimensiones generales</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.generalDimentions}
+              {partDimentions.generalDimentions}
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Dimensiones del material</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.materialDimentions}
+              {partDimentions.materialDimentions}
             </label>
           </div>
           <div className="flex flex-col w-2/12">
             <label>Unidades</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.dimentionUnits}
+              {partDimentions.units}
             </label>
           </div>
         </div>
@@ -290,56 +289,43 @@ function PartInfo() {
         </label>
 
         <div title="buttons" className="flex flex-col mt-1 w-full gap-y-2">
-          <div className="flex justify-start gap-x-2">
+          <div className="flex justify-start gap-x-2 gap-y-2 flex-wrap">
             <BlueButton
               btnText="Editar"
-              btnAction={editPartInfo}
-            />
-            <BlueButton
-              btnText="Dibujo 2D"
-            />
-            <BlueButton
-              btnText="Modelo 3D"
-            />
-            <BlueButton
-              btnText="Programa CNC"
+              btnAction={openEditPart}
             />
             <BlueButton
               btnText="Inspeccionar pieza"
-              btnAction={openQualityPanel}
+              btnAction={openInspectPart}
             />
-          </div>
-          
-          <div className="flex justify-start gap-x-2">
             <BlueButton
               btnText="Solicitar material"
-              btnAction={requestMaterialAction}
+              btnAction={openRequestMaterial}
             />
             <BlueButton
-              btnText="Ruta de procesos"
-              btnAction={openPartProcesses}
+              btnText="Administrar procesos"
+              btnAction={openProcessPath}
             />
             <BlueButton
               btnText="Solicitar retrabajo"
-              btnAction={reworkRequest}
+              btnAction={openReworkRequest}
             />
           </div>
 
           <div className="flex justify-end pt-3">
             <RedButton
               btnText="Regresar"
-              btnAction={closePart}
+              btnAction={closeSelectedPart}
             />
           </div>
-
         </div>
       </div>
-      <div className="h-fit items-center ">
+      <div className="h-fit items-center">
         <object
           aria-label="No se encontro el plano"
           type="application/pdf"
           data={planoPdf}
-          style={{ height: "90vh", width: "60vw" }}
+          style={{ height: "93vh", width: "60vw" }}
         />
       </div>
     </div>

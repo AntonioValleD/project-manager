@@ -2,7 +2,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import DataTable from "react-data-table-component";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { bootstrapQualityInfo, selectQualityUnit, editSelectedQualityMeasure } from "../../features/partsSlice.js/partsSlice";
 import NoDataComponent from "../project_info/NoDataComponent";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
 
@@ -33,16 +32,9 @@ function QualityTable() {
   // Check state info
   useEffect(() => {
     if (parseInt(partInfo.quantity) !== partInfo.qualityTable.length){
-      dispatch(bootstrapQualityInfo({
-        ot: partOt,
-        partId: partId,
-      }))
+
     } else {
-      dispatch(selectQualityUnit({
-        ot: partOt,
-        partId: partId,
-        unitId: "1",
-      }))
+
     }
   }, [])
 
@@ -143,13 +135,6 @@ function QualityTable() {
 
   // Click row function
   const selectPartMeasure = (measureId) => {
-    dispatch(
-      editSelectedQualityMeasure({
-        ot: partOt,
-        partId: partId,
-        measureId: measureId,
-      })
-    );
   };
 
 

@@ -1,7 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useRef } from "react";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { requestMaterial } from "../../features/partsSlice.js/partsSlice";
 import { increaseRequestMaterialValue } from "../../features/projects/projectListSlice";
 import { v4 as uuidv4 } from 'uuid';
 import RedButton from "../assets/buttons/RedButton";
@@ -117,11 +116,6 @@ function RequestMaterialModal(props) {
 
   // Sumbit material request
   const submitRequest = () => {
-    dispatch(requestMaterial({
-      ot: selectedOt,
-      partId: partId,
-      request: materialRequest,
-    }))
 
     dispatch(increaseRequestMaterialValue({
       ot: selectedOt,

@@ -1,54 +1,91 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-import { addMachineTab } from "../../features/machine_tabs/machineTabsSlice";
-import { formaterMS } from "../../functions/timeFromater";
+import { useSelector, useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { addMachineTab } from "../../features/machine_tabs/machineTabsSlice"
+import { formaterMS } from "../../functions/timeFromater"
+import { AiFillEdit } from "react-icons/ai"
+import { AiFillDelete } from "react-icons/ai"
+
 
 function MachineCards() {
   // Hooks
-  const dispatch = useDispatch();
-  const machines = useSelector(state => state.machineList);
-  const productionList = useSelector(state => state.productionList);
-  const windowStatus = useSelector(state => state.selectedWindow).production;
+  const dispatch = useDispatch()
+  const machines = useSelector(state => state.machineList)
+  const productionList = useSelector(state => state.productionList)
+  const windowStatus = useSelector(state => state.selectedWindow).production
 
 
   // Double click function
   const openMachine = (machineName) => {
-      dispatch(addMachineTab(machineName));
-  };
+      dispatch(addMachineTab(machineName))
+  }
 
   
-  const [counter, setCounter] = useState(0);
+  const [counter, setCounter] = useState(0)
+
+  const [cardMouseEnter, setCardMouseEnter] = useState("")
   
 
   useEffect(() => {
-    let cronometer = null;
-    setCounter(0);
+    let cronometer = null
+    setCounter(0)
     if (windowStatus){
       cronometer = setInterval(() => {
         setCounter(1)
-      }, 1000);
+      }, 1000)
     }
 
     return () => {
-      clearInterval(cronometer);
-    };
+      clearInterval(cronometer)
+    }
   }, [counter, windowStatus])
 
+
   return (
-    <div className="flex flex-wrap justify-between h-fit gap-y-3 w-fit">
+    <div className="flex flex-wrap justify-between">
+      <label
+        title="Nueva máquina"
+        className="fixed bottom-10 right-10 flex items-center justify-center text-white text-3xl rounded-full bg-green-900 h-12 w-12 pb-1 hover:bg-green-700 cursor-pointer"
+      >
+        +
+      </label>
       {machines.map((machine) => (
         <div
           key={machine.name}
-          className="text-black p-2 mx-1 rounded-sm h-fit w-64 text-center bg-gray-800 hover:bg-gray-600 select-none"
+          className="text-black p-2 mx-1 rounded-sm h-fit w-64 text-center bg-gray-800 hover:bg-gray-600 select-none transition-all duration-75"
           onDoubleClick={() => openMachine(machine.name)}
+          onMouseEnter={() => setCardMouseEnter(machine.name)}
+          onMouseLeave={() => setCardMouseEnter("")}
         >
-          <label className="text-l text-white justify-center flex">
-            <span className="h-5 px-2 rounded-sm">
-              {(machine.name).toUpperCase()}
-            </span>
-          </label>
           <div
-            className="flex flex-col"
+            className="flex items-center text-l text-white justify-start ml-4"
+          >
+            <label className="h-5 w-2/3 flex justify-end">
+              {(machine.name).toUpperCase()}
+            </label>
+            {
+              machine.name === cardMouseEnter ?
+              <div
+                className="w-1/3 flex justify-end items-center gap-x-1"
+              >
+                <label
+                  title="Editar información de máquina"
+                  className="hover:text-yellow-200 cursor-pointer"
+                >
+                  <AiFillEdit/>
+                </label>
+                <label
+                  title="Eliminar máquina"
+                  className="hover:text-red-300 cursor-pointer"
+                >
+                  <AiFillDelete/>
+                </label>
+              </div> :
+              ""
+            }
+          </div>
+
+          <div
+            className="flex flex-col mt-px"
           >
             <label className="text-white">Proyecto</label>
             <label

@@ -3,19 +3,20 @@ import { useSelector, useDispatch } from "react-redux"
 import { useState, useRef, useEffect } from "react"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { updateProjectTab } from "../../features/project_tabs/projectTabSlice"
-import { updatePartsOt } from "../../features/partsSlice.js/partsSlice"
 import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import { addProject, editProject } from "../../features/projects/projectListSlice"
-import { updateProjectOt } from "../../features/appIndexStatus/appIndexStatusSlice"
+import { updateProjectOt } from "../../features/selectedPartSlice/appIndexStatusSlice"
 import AlertInfoModal from "./AlertInfoModal"
 import { DateTime } from "luxon"
 
 
 function NewProjectModal(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
+
+  // Local component state
   const [error, setError] = useState({
     status: false,
     message: ''
@@ -221,11 +222,6 @@ function NewProjectModal(props) {
 
     dispatch(updateProjectOt({
       ot: newProjectOt
-    }))
-
-    dispatch(updatePartsOt({
-      oldOt: props.projectInfo.ot,
-      newOt: newProjectOt
     }))
 
     props.successFn("El proyecto se actualizó correctamente!")

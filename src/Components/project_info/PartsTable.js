@@ -7,16 +7,20 @@ import BlueButton from "../assets/buttons/BlueButton"
 import NoDataComponent from "./NoDataComponent"
 import NewPartModal from "../modals/NewPartModal"
 import DeletePartModal from "../modals/DeletePartModal"
-import { editSelectedPart } from "../../features/partsSlice.js/partsSlice"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { updatePartsQuantity, deletePart } from "../../features/projects/projectListSlice"
+import { openPart, closePart } from "../../features/selectedPartSlice/appIndexStatusSlice"
 import toast, { Toaster } from "react-hot-toast"
 
 function PartsTable() {
+  // Hooks
   const dispatch = useDispatch()
 
-  const selectedOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id
 
-  const partListProject = (useSelector((state) => state.partList)).find(project => project.ot === selectedOt)
+  // Redux state
+  const selectedOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id
+  const selectedProject = useSelector((state) => state.projectList).find(project => project.ot === selectedOt)
+  const partList = selectedProject.parts
 
 
   // Local state
@@ -26,7 +30,10 @@ function PartsTable() {
   })
   const [nextUpdate, setNextUpdate] = useState(true)
 
+  const [selectedPart, setSelectedPart] = useState("")
 
+
+  // Auto re-size table
   window.addEventListener('resize', () => {
     if (nextUpdate){
       setWindowResolution({
@@ -40,11 +47,6 @@ function PartsTable() {
     }
   })
 
-  let partList
-  if (partListProject){
-    partList = partListProject.parts;
-  }
-
 
   const columns = [
     {
@@ -56,63 +58,47 @@ function PartsTable() {
     },
     {
       name: "Pieza",
-      selector: (row) => row.partName,
+      selector: (row) => row.partInfo.name,
       sortable: true,
       width: "15%",
       center: true
     },
     {
       name: "Material",
-      selector: (row) => row.material,
+      selector: (row) => row.partInfo.material,
       with: '15%',
       center: true,
       wrap: true
     },
     {
       name: "Estado",
-      selector: (row) => {
-        let partInfo;
-        if (partList){
-          partInfo = partList.find(part => part.id === row.id);
-        }
-        if (partInfo){
-          if (partInfo.materialRequest){
-            let totalRequests = partInfo.materialRequest.length;
-            let status = partInfo.materialRequest[(totalRequests - 1)].status;
-            return status;
-          } else {
-            return "Sin solicitar";
-          }
-        } else {
-          return "Sin solicitar";
-        }
-      },
+      selector: (row) => row.materialRequest.status,
       with: '15%',
       center: true,
       wrap: true
     },
     {
       name: "Ubicación",
-      selector: (row) => row.location,
+      selector: (row) => row.partInfo.location,
       width: '15%',
       center: true
     },
     {
       name: "Cantidad",
-      selector: (row) => row.quantity,
+      selector: (row) => row.partInfo.quantity,
       sortable: true,
       width: '11%',
       center: true
     },
     {
       name: "Fabricadas",
-      selector: (row) => row.finished,
+      selector: (row) => row.partInfo.finished,
       width: "10%",
       center: true
     },
     {
       name: "Calidad",
-      selector: (row) => row.qualityProcess,
+      selector: (row) => row.qualityInfo.status,
       width: "16%",
       center: true
     },
@@ -147,10 +133,10 @@ function PartsTable() {
     },
     table: {
       style: {
-        height: `${parseInt(windowResolution.height - 210)}px`
+        height: `${parseInt(windowResolution.height - 160)}px`
       }
     }
-  };
+  }
   
   // Conditional row styles
   let conditionalRowStyles = [
@@ -169,26 +155,26 @@ function PartsTable() {
       }
     },
     {
-      when: row => row.selected === true,
+      when: row => row.id === selectedPart,
       style: {
         backgroundColor: 'rgb(21 128 61',
         color: 'white',
       }
     }
-  ];
+  ]
 
-  // Click row function
-  const openPart = (partId) => {
+  // Double Click row function
+  const openPartInfo = () => {
+    if (selectedPart === ""){
+      toast.error("No hay ninguna pieza seleccionada")
+      return 
+    } else {
+      dispatch(openPart({
+        ot: selectedOt,
+        partId: selectedPart
+      }))
+    }
   }
-  
-  const selectRow = (partId) => {
-    dispatch(editSelectedPart(
-      {
-        partOt: selectedOt,
-        partId: partId
-      }
-    ))
-  };
 
   // NewDeleteButton functions
   const newBtn = () => {
@@ -196,36 +182,40 @@ function PartsTable() {
       modalName: 'newPart',
       modalStatus: true,
     }))
-  };
+  }
 
-  const findPartList = useSelector(state => state.partList).find(project => project.ot === selectedOt);
   const deleteBtn = () => {
-    if (findPartList){
-      const findSelectedPart = findPartList.parts.find(part => part.selected === true)
-      if (findSelectedPart){
-        dispatch(changeModalStatus({
-          modalName: "deletePart",
-          modalStatus: true,
-        }))
-      } else {
-        dispatch(changeModalStatus({
-          modalName: "noPartSelected",
-          modalStatus: true,
-        }))
-      }
+    if (selectedPart === ""){
+      toast.error("No ha seleccionado ninguna pieza")
     } else {
-      dispatch(changeModalStatus({
-        modalName: "noPartSelected",
-        modalStatus: true,
-      }))
-    }
+      deletePartsQuantity()
 
-  };
+      dispatch(deletePart({
+        ot: selectedOt,
+        partId: selectedPart
+      }))
+
+      toast.success("La pieza se eliminó correctamente")
+    }
+  }
+
+
+  // Update parts quantity
+  const deletePartsQuantity = () => {
+    const projectInfo = selectedProject.projectInfo
+
+    let unitQuantity = parseInt(partList.find(part => part.id === selectedPart).partInfo.quantity)
+    dispatch(updatePartsQuantity({
+      ot: selectedOt,
+      partsQuantity: projectInfo.partsQuantity - 1,
+      totalPartUnits: projectInfo.totalPartUnits - unitQuantity
+    }))
+  }
 
 
   const successNotify = (message) => {
-    toast.success(message);
-  };
+    toast.success(message)
+  }
 
 
   // Modal window selector
@@ -268,10 +258,9 @@ function PartsTable() {
           striped
           highlightOnHover
           fixedHeader
-          pagination
           customStyles={customStyles}
-          onRowClicked={row => selectRow(row.id)}
-          onRowDoubleClicked={(row, event) => openPart(row.id)}
+          onRowClicked={row => setSelectedPart(row.id)}
+          onRowDoubleClicked={() => openPartInfo()}
           conditionalRowStyles={conditionalRowStyles}
           persistTableHead
           noDataComponent={<NoDataComponent/>}

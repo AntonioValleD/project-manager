@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { useEffect, useState } from "react"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { addProjectTab } from "../../features/project_tabs/projectTabSlice"
-import { openProject } from "../../features/appIndexStatus/appIndexStatusSlice"
+import { openProject } from "../../features/selectedPartSlice/appIndexStatusSlice"
 import "bootstrap/dist/css/bootstrap.min.css"
 import toast, { Toaster } from 'react-hot-toast'
 import DataTable from "react-data-table-component"

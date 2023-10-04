@@ -36,8 +36,8 @@ function ProductionWindow() {
   }
 
   return (
-    <div className="h-full">
-      <div className="h-fit bg-gray-900 mt-3 ml-2">
+    <div className="">
+      <div className="absolute top-1 h-8 left-20 flex items-center">
         <TabNav
           showTab={showTab}
           closeTab={closeTab}
@@ -45,7 +45,7 @@ function ProductionWindow() {
           data={machineTabs}
         />
       </div>
-      <div className="h-fit w-full pt-2 mt-1 bg-gray-900">
+      <div className=" w-full pt-2 bg-gray-900">
         {content}
       </div>
     </div>

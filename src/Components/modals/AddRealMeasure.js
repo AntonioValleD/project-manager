@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useRef, useEffect } from "react";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { updateRealMeasure } from "../../features/partsSlice.js/partsSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 import AlertInfoModal from "./AlertInfoModal";
@@ -61,11 +60,7 @@ function AddRealMeasure(props) {
 
   // Add new part function
   const updateMeasure = () => {
-    dispatch(updateRealMeasure({
-        ot: projectOt,
-        partId: partId,
-        realMeasure: realMeasure,
-    }))
+
     props.successFn("Medición actualizada!")
     dispatch(
       changeModalStatus({

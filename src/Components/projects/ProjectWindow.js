@@ -3,7 +3,7 @@ import TabNav from "../main/TabNav"
 import ProjectInfoWindow from "../project_info/ProjectInfoWindow"
 import { useSelector, useDispatch } from "react-redux"
 import { deleteProjectTab, editSelectedTab } from "../../features/project_tabs/projectTabSlice"
-import { openProject } from "../../features/appIndexStatus/appIndexStatusSlice"
+import { openProject, closeProject } from "../../features/selectedPartSlice/appIndexStatusSlice"
 
 function ProjectWindow() {
   const dispatch = useDispatch()
@@ -20,7 +20,9 @@ function ProjectWindow() {
   }
   const closeTab = (id) => {
     dispatch(deleteProjectTab(id))
-    //dispatch(unselectPart({partOt: selectedProject.id}));
+    dispatch(closeProject({
+      ot: id
+    }))
   }
 
 
@@ -35,7 +37,7 @@ function ProjectWindow() {
   return (
     <div className="">
       <div
-        className="fixed top-1 left-20 h-8 flex items-center"
+        className="absolute top-1 left-20 h-8 flex items-center"
       >
         <TabNav
           text="O.T."

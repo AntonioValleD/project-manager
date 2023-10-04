@@ -1,13 +1,12 @@
 import "animate.css"
-import { DateTime } from "luxon";
-import { useSelector, useDispatch } from "react-redux";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { selectProjectOption } from "../../features/projects/projectOptionSlice";
-import toast, { Toaster } from "react-hot-toast";
-import "bootstrap/dist/css/bootstrap.min.css";
-import BlueButton from "../assets/buttons/BlueButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import NewProjectModal from "../modals/NewProjectModal";
+import { DateTime } from "luxon"
+import { useSelector, useDispatch } from "react-redux"
+import { changeProjectOption } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import toast, { Toaster } from "react-hot-toast"
+import "bootstrap/dist/css/bootstrap.min.css"
+import BlueButton from "../assets/buttons/BlueButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import NewProjectModal from "../modals/NewProjectModal"
 
 function ProjectInfo() {
   // Hooks
@@ -35,17 +34,37 @@ function ProjectInfo() {
 
   // Button functions
   const editInfo = () => {
-    dispatch(changeModalStatus({
-      modalName: "newProject",
-      modalStatus: true,
+    dispatch(changeProjectOption({
+      optionName: "edit",
+      optionStatus: true
     }))
   }
 
+  const openWorkRequest = () => {
+    dispatch(changeProjectOption({
+      optionName: "workRequest",
+      optionStatus: true
+    }))
+  }
 
-  const openRequestMaterialWindow = () => {
-    dispatch(selectProjectOption({
-      ot: selectedProjectOt,
-      option: "materialRequest",
+  const openMaterialRequest = () => {
+    dispatch(changeProjectOption({
+      optionName: "materialRequest",
+      optionStatus: true
+    }))
+  }
+
+  const openReeworks = () => {
+    dispatch(changeProjectOption({
+      optionName: "reeworks",
+      optionStatus: true
+    }))
+  }
+
+  const openActivityReg = () => {
+    dispatch(changeProjectOption({
+      optionName: "activityReg",
+      optionStatus: true
     }))
   }
 
@@ -72,7 +91,7 @@ function ProjectInfo() {
 
 
   return (
-    <div className="w-5/12 text-center text-white">
+    <div className="w-5/12 text-center text-white mt-2 ml-1">
       {modalWindow}
 
       <Toaster
@@ -178,20 +197,27 @@ function ProjectInfo() {
 
 
       <label className="flex justify-center text-lg mt-3 font-semibold text-white">
-        Piezas
+        {"Piezas (cantidades)"}
       </label>
 
 
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-full">
-          <label>Total</label>
+          <label>Piezas totales</label>
+          <label className="bg-white font-semibold rounded-sm text-black">
+            {selectedProjectInfo.totalPartUnits}
+          </label>
+        </div>
+
+        <div className="flex flex-col w-full">
+          <label>Modelos</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {selectedProjectInfo.partsQuantity}
           </label>
         </div>
 
         <div className="flex flex-col w-full">
-          <label>Liberadas</label>
+          <label>Liberados</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {selectedProjectInfo.finishedParts}
           </label>
@@ -201,14 +227,6 @@ function ProjectInfo() {
           <label>Rechazadas</label>
           <label className="bg-white font-semibold rounded-sm text-black">
             {selectedProjectInfo.rejectedPartUnits}
-          </label>
-        </div>
-
-        <div className="flex flex-col w-full">
-          <label>Faltantes</label>
-          <label className="bg-white font-semibold rounded-sm text-black">
-            {selectedProjectInfo.partsQuantity -
-              selectedProjectInfo.finishedParts}
           </label>
         </div>
       </div>
@@ -254,25 +272,26 @@ function ProjectInfo() {
 
           <BlueButton 
             btnText="Orden de trabajo"
+            btnAction={openWorkRequest}
           />
 
           <BlueButton 
             btnText="Solicitudes de insumos"
-            btnAction={openRequestMaterialWindow}
+            btnAction={openMaterialRequest}
           />
 
           <BlueButton 
             btnText="Retrabajos"
+            btnAction={openReeworks}
           />
         </div>
 
-        <div className="flex justify-start gap-x-3">
+        <div className="flex justify-between">
           <BlueButton 
             btnText="Registro de actividad"
+            btnAction={openActivityReg}
           />
-        </div>
-        
-        <div className="flex justify-end gap-x-3 mt-3">
+
           <GreenButton
             btnText="Finalizar proyecto"
           />

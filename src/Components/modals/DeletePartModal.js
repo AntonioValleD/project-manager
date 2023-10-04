@@ -1,6 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { deletePart } from "../../features/partsSlice.js/partsSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 
@@ -11,9 +10,7 @@ function DeletePartModal(props) {
   /* Funtions */
   const selectedOt = useSelector(state => state.projectTabs).find(tab => tab.selected === true).id;
   const aceptButton = () => {
-    dispatch(deletePart(selectedOt));
-    props.successFn("La pieza se eliminó correctamente");
-    cancelButton();
+
   }
   const cancelButton = () => {
     dispatch(changeModalStatus({modalName: 'deletePart', modalStatus: false}));

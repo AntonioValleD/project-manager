@@ -1,28 +1,27 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useState, useRef, useEffect } from "react";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { addMeasure, updateMeasure } from "../../features/partsSlice.js/partsSlice";
-import RedButton from "../assets/buttons/RedButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import AlertInfoModal from "./AlertInfoModal";
+import { useDispatch, useSelector } from "react-redux"
+import { useState, useRef, useEffect } from "react"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import AlertInfoModal from "./AlertInfoModal"
 
 
 function AddMeasureModal(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Part info and measure info
-  const projectOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id;
+  const projectOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id
 
-  const partId = useSelector(state => state.selectedPart).find(part => part.ot === projectOt).partId;
+  const partId = useSelector(state => state.selectedPart).find(part => part.ot === projectOt).partId
 
 
   // State managment
   const [error, setError] = useState({
     status: false,
     message: '',
-  }); 
+  })
 
   const [newMeasure, setNewMeasure] = useState({
     measureId: '',
@@ -31,7 +30,7 @@ function AddMeasureModal(props) {
     lessTolerance: 0,
     tolerance: '',
     measure: '',
-  });
+  })
 
 
   // Input values
@@ -39,8 +38,8 @@ function AddMeasureModal(props) {
     setNewMeasure({
       ...newMeasure,
       [event.target.name]: event.target.value,
-    });
-  };
+    })
+  }
 
 
   /* Funtions */
@@ -51,14 +50,15 @@ function AddMeasureModal(props) {
           modalName: "addMeasure",
           modalStatus: false,
         })
-      );
+      )
+
     } else {
       dispatch(changeModalStatus({
         modalName: "updateMeasure",
         modalStatus: false,
       }))
     }
-  };
+  }
 
 
   // Submit new measure
@@ -82,11 +82,7 @@ function AddMeasureModal(props) {
 
   // Add new part function
   const addNewMeasure = () => {
-    dispatch(addMeasure({
-      ot: projectOt,
-      partId: partId,
-      measure: newMeasure,
-    }))
+
     props.successFn("La medida se guradó correctamente!");
     dispatch(
       changeModalStatus({

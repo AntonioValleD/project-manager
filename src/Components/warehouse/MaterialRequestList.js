@@ -1,48 +1,49 @@
-import { DateTime } from "luxon";
-import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { unselectProjectOption } from "../../features/projects/projectOptionSlice";
-import { updateRequestStatus } from "../../features/partsSlice.js/partsSlice";
-import "bootstrap/dist/css/bootstrap.min.css";
-import toast, { Toaster } from 'react-hot-toast';
-import DataTable from "react-data-table-component";
-import SeacrhBar from "../projects/SearchBar";
-import RedButton from "../assets/buttons/RedButton";
-import BlueButton from "../assets/buttons/BlueButton";
-import WarehouseConfirmationModal from "../modals/WarehouseConfirmationModal";
+import { DateTime } from "luxon"
+import { useSelector, useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import "bootstrap/dist/css/bootstrap.min.css"
+import toast, { Toaster } from 'react-hot-toast'
+import DataTable from "react-data-table-component"
+import SeacrhBar from "../projects/SearchBar"
+import RedButton from "../assets/buttons/RedButton"
+import BlueButton from "../assets/buttons/BlueButton"
+import WarehouseConfirmationModal from "../modals/WarehouseConfirmationModal"
+import { changeProjectOption } from "../../features/selectedPartSlice/appIndexStatusSlice"
 
 
 function MaterialRequestList() {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Redux state
-  const selectedProjectOt = useSelector(state => state.selectedProject).selected;
+  const projectIndex = useSelector(state => state.appIndex).find(project => project.selected === true)
 
-  const partList = useSelector(state => state.partList).find(project => project.ot === selectedProjectOt).parts;
+  const selectedProjectOt = projectIndex.ot
+
+  const partList = useSelector(state => state.projectList).find(project => project.ot === selectedProjectOt).parts
 
 
   // Material request list constructor
-  let materialRequestList = [];
+  let materialRequestList = []
   partList.forEach((part) => {
     if (part.materialRequest) {
       part.materialRequest.forEach((request) => {
         materialRequestList.push(request)
       })
     }
-  });
+  })
 
 
   // Local component states
-  const [selectedRow, setSelectedRow] = useState('');
+  const [selectedRow, setSelectedRow] = useState('')
 
-  const [confirmationInfo, setConfirmationInfo] = useState({});
+  const [confirmationInfo, setConfirmationInfo] = useState({})
 
-  const [filteredRequestList, filterRequestList] = useState(materialRequestList);
+  const [filteredRequestList, filterRequestList] = useState(materialRequestList)
 
-  const selectedRequest = materialRequestList.find(request => request.requestNo === selectedRow);
+  const selectedRequest = materialRequestList.find(request => request.requestNo === selectedRow)
 
   
   // Table columns definition
@@ -182,7 +183,7 @@ function MaterialRequestList() {
         minHeight: "575px"
       }
     },
-  };
+  }
 
   // Conditional table row styles
   let conditionalRowStyles = [
@@ -193,20 +194,20 @@ function MaterialRequestList() {
         color: 'white',
       }
     },
-  ];
+  ]
 
   // Select table row function
   const selectRow = async (requestNo) => {
-    setSelectedRow(requestNo);
-  };
+    setSelectedRow(requestNo)
+  }
 
   // Close material request window function
   const closeMaterialRequestWindow = () => {
-    dispatch(unselectProjectOption({
-      ot: selectedProjectOt,
-      option: "materialRequest"
+    dispatch(changeProjectOption({
+      optionName: "materialRequest",
+      optionStatus: false
     }))
-  };
+  }
 
 
   // Button functions
@@ -297,12 +298,6 @@ function MaterialRequestList() {
   };
 
   const confirmationSuccess = (action) => {
-    dispatch(updateRequestStatus({
-      ot: selectedProjectOt,
-      partId: selectedRequest.partId,
-      requestNo: selectedRequest.requestNo,
-      requestStatus: action,
-    }))
 
     if (action === "materialRequest"){
       successNotify("El material se compró correctamente");

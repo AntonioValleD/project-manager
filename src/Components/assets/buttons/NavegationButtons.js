@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { selectQualityUnit } from "../../../features/partsSlice.js/partsSlice";
+import { useEffect, useState } from "react"
+import { useSelector, useDispatch } from "react-redux"
 
 
 function NavegationButtons(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Project info
@@ -32,11 +31,6 @@ function NavegationButtons(props) {
   const handleKeyDown = (e) => {
     if (e.key === "Enter"){
 
-      dispatch(selectQualityUnit({
-        ot: selectedProjectOt,
-        partId: selectedPartId,
-        unitId: Math.abs(parseInt(unitId)).toString(),
-      }))
       //ipcRenderer.send('message', ["Hola"])
       setUnitInputStatus(false);
     }

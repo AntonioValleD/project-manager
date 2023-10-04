@@ -2,7 +2,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState, useRef, useEffect } from "react";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
 import { selectOption } from "../../features/partOptionSlice/partOptionSlice";
-import { updateInspectionSettings } from "../../features/partsSlice.js/partsSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 import AlertInfoModal from "./AlertInfoModal";
@@ -109,11 +108,6 @@ function SetUpQualityInspectionModal(props) {
 
   // Sumbit material request
   const saveInspectionSettings = () => {
-    dispatch(updateInspectionSettings({
-      ot: selectedOt,
-      partId: partId,
-      inspectionSettings: inspectionSettings,
-    }))
 
     dispatch(selectOption(
       {
@@ -128,11 +122,6 @@ function SetUpQualityInspectionModal(props) {
 
   // Update part info function
   const updateInspectionStettings = () => {
-    dispatch(updateInspectionSettings({
-      ot: selectedOt,
-      partId: partId,
-      inspectionSettings: inspectionSettings,
-    }))
 
     props.successFn("La configuración se actualizó correctamente");
 

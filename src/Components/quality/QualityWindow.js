@@ -1,5 +1,4 @@
 import { useSelector, useDispatch } from "react-redux";
-import { deleteMeasure, selectQualityUnit } from "../../features/partsSlice.js/partsSlice";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
 import toast, { Toaster } from "react-hot-toast";
 import DrawingViewer from "./DrawingViewer";
@@ -43,12 +42,7 @@ function QualityWindow() {
     if (!selectedMeasure){
       toast.error("No ha seleccionado ninguna medida para eliminar");
     } else {
-      dispatch(deleteMeasure(
-        {
-          ot: selectedTabOt,
-          partId: selectedPartId,
-        }
-      ));
+
       toast.success("La medida se eliminó correctamente");
     }
   };
@@ -74,11 +68,6 @@ function QualityWindow() {
       unitId = "1";
     }
 
-    dispatch(selectQualityUnit({
-      ot: selectedTabOt,
-      partId: selectedPartId,
-      unitId: unitId,
-    }))
   }
 
   const nextUnit = () => {
@@ -93,11 +82,6 @@ function QualityWindow() {
       unitId = "1";
     }
 
-    dispatch(selectQualityUnit({
-      ot: selectedTabOt,
-      partId: selectedPartId,
-      unitId: unitId,
-    }))
   }
 
 

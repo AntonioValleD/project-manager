@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { openProject } from "../../features/appIndexStatus/appIndexStatusSlice"
 
 
 function TabNav(props) {

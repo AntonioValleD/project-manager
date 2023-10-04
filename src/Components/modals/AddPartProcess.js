@@ -1,7 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useRef, useEffect } from "react";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import { addProcess, editProcess } from "../../features/partsSlice.js/partsSlice";
 import RedButton from "../assets/buttons/RedButton";
 import GreenButton from "../assets/buttons/GreenButton";
 import AlertInfoModal from "./AlertInfoModal";
@@ -89,13 +88,7 @@ function AddPartProcess(props) {
 
   // Add new process function
   const addNewProcess = () => {
-    dispatch(
-      addProcess({
-        ot: selectedOt,
-        partId: selectedPartId,
-        newProcess: newProcess,
-      })
-    );
+
     dispatch(
       changeModalStatus({
         modalName: "newProcess",
@@ -106,13 +99,6 @@ function AddPartProcess(props) {
 
   // Update process info function
   const updateProcess = () => {
-    dispatch(
-      editProcess({
-        ot: selectedOt,
-        processIndex: props.index,
-        newProcess: newProcess,
-      })
-    );
 
     dispatch(
       changeModalStatus({
