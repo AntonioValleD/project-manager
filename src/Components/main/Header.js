@@ -1,6 +1,7 @@
 import WindowSelector from "./WindowSelector"
 import LateralMenu from "./LateralMenu"
 import { unselectProjectTab } from "../../features/project_tabs/projectTabSlice"
+import { unselectMachineTab } from "../../features/machine_tabs/machineTabsSlice"
 import { useDispatch } from "react-redux"
 import { IoMdNotifications } from "react-icons/io"
 
@@ -11,6 +12,7 @@ function Header() {
 
   const goHome = () => {
     dispatch(unselectProjectTab())
+    dispatch(unselectMachineTab())
   }
 
 

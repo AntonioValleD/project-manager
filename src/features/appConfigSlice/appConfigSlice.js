@@ -3,7 +3,12 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
     token: "",
-    serverUrl: "http://localhost:4000"
+    serverUrl: "http://localhost:4000",
+    timing: {
+      shiftStart: { hours: 8 },
+      mondayShiftEnd: { hours: 4 },
+      weekShiftEnd: { hours: 6 },
+    },
 }
 
 

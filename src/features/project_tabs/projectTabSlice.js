@@ -10,7 +10,8 @@ export const projectTabSlice = createSlice({
             let newTab = {
                 id: action.payload,
                 selected: true
-            };
+            }
+            
             if (state.length === 0){
                 state.push(newTab);
             } else {

@@ -7,6 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import BlueButton from "../assets/buttons/BlueButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import NewProjectModal from "../modals/NewProjectModal"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 
 function ProjectInfo() {
   // Hooks
@@ -34,9 +35,9 @@ function ProjectInfo() {
 
   // Button functions
   const editInfo = () => {
-    dispatch(changeProjectOption({
-      optionName: "edit",
-      optionStatus: true
+    dispatch(changeModalStatus({
+      modalName: "newProject",
+      modalStatus: true
     }))
   }
 
@@ -75,18 +76,16 @@ function ProjectInfo() {
 
 
   // Modal window selector
-  let modalWindow;
-  const modalStatus = useSelector(state => state.modalStatus);
-  if (modalStatus){
-    if (modalStatus.newProject){
-      modalWindow = <NewProjectModal 
-        textTitle="Editar proyecto"
-        projectOt={selectedProjectOt}
-        projectInfo={selectedProjectInfo}
-        update={true}
-        successFn={successNotify}
-      />
-    }
+  let modalWindow
+  const modalStatus = useSelector(state => state.modalStatus)
+  if (modalStatus.newProject){
+    modalWindow = <NewProjectModal 
+      textTitle="Editar proyecto"
+      projectOt={selectedProjectOt}
+      projectInfo={selectedProjectInfo}
+      update={true}
+      successFn={successNotify}
+    />
   }
 
 

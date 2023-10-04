@@ -12,8 +12,8 @@ let initialState = {
     deleteProcess: false,
     editProcess: false,
     noProcessSelected: false,
-    noProductionPartSelected: false,
-    deleteProductionPart: false,
+    noProductionPartSelected: false, 
+    deleteProductionPart: false, 
     newproductionPart: false,
     startMachining: false,
     stopMachining: false,
@@ -27,6 +27,7 @@ let initialState = {
     warehouseConfirmation: false,
     setUpQualityInspection: false,
     updateInspectionSettings: false,
+    newMachine: false,
 };
 
 export const modalSlice = createSlice({

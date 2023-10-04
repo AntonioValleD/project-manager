@@ -45,7 +45,7 @@ function ProductionWindow() {
           data={machineTabs}
         />
       </div>
-      <div className=" w-full pt-2 bg-gray-900">
+      <div className="bg-gray-900 absolute left-0 pl-1 w-full flex justify-center">
         {content}
       </div>
     </div>
