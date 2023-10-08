@@ -1,5 +1,5 @@
-import MachineInfo from "./MachineInfo";
-import ProductionTable from "./ProductionTable";
+import MachineInfo from "./MachineInfo"
+import ProductionTable from "./ProductionTable"
 
 function MachineStructure() {
   return (
@@ -7,7 +7,7 @@ function MachineStructure() {
       <MachineInfo/>
       <ProductionTable/>
     </div>
-  );
+  )
 }
 
-export default MachineStructure;
+export default MachineStructure

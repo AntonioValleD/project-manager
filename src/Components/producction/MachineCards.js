@@ -1,10 +1,18 @@
+// Hook import
 import { useSelector, useDispatch } from "react-redux"
 import { useEffect, useState } from "react"
+
+// Redux toolkit reducer import
 import { addMachineTab } from "../../features/machine_tabs/machineTabsSlice"
+import { openMachine } from "../../features/appIndexSlice/appIndexStatusSlice"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { formaterMS } from "../../functions/timeFromater"
+
+// React icons import
 import { AiFillEdit } from "react-icons/ai"
 import { AiFillDelete } from "react-icons/ai"
+
+// Component import
 import toast, { Toaster } from 'react-hot-toast'
 import NewMachineModal from "../modals/NewMachineModal"
 import DeleteMachineModal from "../modals/DeleteMachineModal"
@@ -17,10 +25,41 @@ function MachineCards() {
   const productionList = useSelector(state => state.productionList)
   const windowStatus = useSelector(state => state.selectedWindow).production
 
+  
+  // Local component state
+  const [counter, setCounter] = useState(0)
+
+  const [hoverMachineName, setHoverMachineName] = useState("")
+
+  const [hoverMachineInfo, setHoverMachineInfo] = useState({})
+
+  const [selectedMachineName, setSelectedMachineName] = useState("")
+
+  const [deleteName, setDeleteName] = useState("")
+
+
+  const [windowResolution, setWindowResolution] = useState({
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight
+  })
+
+  const [cardGrid, setCardGrid] = useState({
+    gap: 8,
+  })
+
+  const [cardSize, setCardSize] = useState({
+    width: ""
+  })
+
 
   // Double click function
-  const openMachine = (machineName) => {
-      dispatch(addMachineTab(machineName))
+  const openNewMachine = (machineName) => {
+    console.log(machineName);
+    dispatch(addMachineTab(machineName))
+
+    dispatch(openMachine({
+      machineName: machineName
+    }))
   }
 
 
@@ -32,58 +71,17 @@ function MachineCards() {
     }))
   }
 
-  
-  // Local component state
-  const [counter, setCounter] = useState(0)
-
-  const [hoverMachineName, setHoverMachineName] = useState("")
-
-  const [deleteName, setDeleteName] = useState("")
-
-  const [nextUpdate, setNextUpdate] = useState(true)
-
-  const [windowResolution, setWindowResolution] = useState({
-    width: window.document.documentElement.clientWidth,
-    height: window.document.documentElement.clientHeight
-  })
-
-  const [cardGrid, setCardGrid] = useState({
-    columns: 5,
-    gap: 8,
-    ofset: 5.
-  })
-
-  const [cardSize, setCardSize] = useState({
-    width: ""
-  })
-
 
   // Resize event listener
   const handleResize = () => {
-    const windowWidth = window.document.documentElement.clientWidth
-    console.log(cardGrid.columns);
-    let cardColumns
-    if (windowWidth > 1500 && windowWidth < 1800){
-        cardColumns = 6
-    } else if (windowWidth > 1280 && windowWidth < 1499){
-        cardColumns = 5
-    } else if (windowWidth > 1060 && windowWidth < 1279){
-        cardColumns = 4
-    } else if (windowWidth > 840 && windowWidth < 1059){
-        cardColumns = 3
-    } else if (windowWidth > 620 && windowWidth < 839){
-        cardColumns = 2
-    } else if (windowWidth > 400 && windowWidth < 619){
-        cardColumns = 1
-    }
-
     setWindowResolution({
       width: window.document.documentElement.clientWidth,
       height: window.document.documentElement.clientHeight
     })
+
     setCardSize({
       ...cardSize,
-      width: `${cardWidthCalc(cardColumns)}px`,
+      width: `${cardWidthCalc()}px`,
     })
   }
 
@@ -91,6 +89,23 @@ function MachineCards() {
   // Success function
   const successMessage = (message) => {
     toast.success(message)
+  }
+
+
+  // Edit machine info
+  const editMachineInfo = (mName) => {
+    const selectedMachineInfo = machines.find(machine => machine.name === hoverMachineName).machineInfo
+
+    setSelectedMachineName(mName)
+
+    setHoverMachineInfo({
+      ...selectedMachineInfo
+    })
+
+    dispatch(changeModalStatus({
+      modalName: "editMachineInfo",
+      modalStatus: true
+    }))
   }
 
 
@@ -105,10 +120,11 @@ function MachineCards() {
 
 
   // Cards width calculator
-  const cardWidthCalc = (columns) => {
-    const realCardSize = (window.document.documentElement.clientWidth - ((columns - 1) * cardGrid.gap)) / columns
+  const cardWidthCalc = () => {
+    let cardColumns = parseInt(windowResolution.width / 265)
+    const realCardSize = (windowResolution.width - ((cardColumns - 1) * cardGrid.gap) - 20) / cardColumns
 
-    const roundedCardSize = parseInt(realCardSize) - cardGrid.ofset
+    const roundedCardSize = parseInt(realCardSize)
 
     return roundedCardSize
   }
@@ -126,6 +142,14 @@ function MachineCards() {
     modalWindow = <DeleteMachineModal
       successFn={successMessage}
       machineName={deleteName}
+    />
+  } else if (modalStatus.editMachineInfo){
+    modalWindow = <NewMachineModal
+      update={true}
+      textTitle="Editar máquina"
+      successFn={successMessage}
+      machineName={selectedMachineName}
+      machineInfo={hoverMachineInfo}
     />
   }
   
@@ -151,7 +175,9 @@ function MachineCards() {
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [window.innerWidth])
+
+  
 
 
   return (
@@ -182,25 +208,27 @@ function MachineCards() {
         <div
           key={machine.name}
           className="text-black p-2 rounded-sm h-fit text-center bg-gray-800 hover:bg-gray-600 select-none transition-all duration-75"
-          onDoubleClick={() => openMachine(machine.name)}
+          onDoubleClick={() => openNewMachine(machine.name)}
           onMouseEnter={() => setHoverMachineName(machine.name)}
           onMouseLeave={() => setHoverMachineName("")}
           style={{ width: cardSize.width }}
         >
           <div
-            className="flex items-center text-l text-white justify-start ml-4"
+            className="flex items-center text-l text-white justify-center"
           >
-            <label className="h-5 w-2/3 flex justify-end">
+            <label className="h-5 flex justify-end">
               {(machine.name).toUpperCase()}
             </label>
             {
               machine.name === hoverMachineName ?
               <div
-                className="w-1/3 flex justify-end items-center gap-x-1"
+                className="flex justify-end items-center gap-x-1 absolute"
+                style={{marginLeft: `${parseInt(parseInt(cardSize.width) / 1.24)}px`}}
               >
                 <label
                   title="Editar información de máquina"
                   className="hover:text-yellow-200 cursor-pointer"
+                  onClick={() => editMachineInfo(machine.name)}
                 >
                   <AiFillEdit/>
                 </label>

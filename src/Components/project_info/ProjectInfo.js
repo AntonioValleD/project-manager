@@ -1,7 +1,7 @@
 import "animate.css"
 import { DateTime } from "luxon"
 import { useSelector, useDispatch } from "react-redux"
-import { changeProjectOption } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
 import toast, { Toaster } from "react-hot-toast"
 import "bootstrap/dist/css/bootstrap.min.css"
 import BlueButton from "../assets/buttons/BlueButton"

@@ -9,7 +9,7 @@ import SeacrhBar from "../projects/SearchBar"
 import RedButton from "../assets/buttons/RedButton"
 import BlueButton from "../assets/buttons/BlueButton"
 import WarehouseConfirmationModal from "../modals/WarehouseConfirmationModal"
-import { changeProjectOption } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
 
 
 function MaterialRequestList() {

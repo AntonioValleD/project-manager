@@ -6,7 +6,7 @@ import { updateProjectTab } from "../../features/project_tabs/projectTabSlice"
 import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import { addProject, editProject } from "../../features/projects/projectListSlice"
-import { updateProjectOt } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { updateProjectOt } from "../../features/appIndexSlice/appIndexStatusSlice"
 import AlertInfoModal from "./AlertInfoModal"
 import { DateTime } from "luxon"
 

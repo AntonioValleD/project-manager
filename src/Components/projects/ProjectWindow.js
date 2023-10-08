@@ -3,7 +3,7 @@ import TabNav from "../main/TabNav"
 import ProjectInfoWindow from "../project_info/ProjectInfoWindow"
 import { useSelector, useDispatch } from "react-redux"
 import { deleteProjectTab, editSelectedTab } from "../../features/project_tabs/projectTabSlice"
-import { openProject, closeProject } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { openProject, closeProject } from "../../features/appIndexSlice/appIndexStatusSlice"
 
 function ProjectWindow() {
   const dispatch = useDispatch()

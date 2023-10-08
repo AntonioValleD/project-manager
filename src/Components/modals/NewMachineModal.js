@@ -1,8 +1,15 @@
+// CSS import
 import "animate.css"
+
+// Hook import
 import { useSelector, useDispatch } from "react-redux"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+
+// Redux toolkit reducer import
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { addMachine } from "../../features/machines/machineSlice"
+import { addMachine, editMachineInfo } from "../../features/machines/machineSlice"
+
+// Component import
 import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import AlertInfoModal from "./AlertInfoModal"
@@ -46,10 +53,17 @@ function NewMachineModal(props) {
   /* Funtions */
   const closeModal = () => {
     if (closeBtn){
-      dispatch(changeModalStatus({
-        modalName: "newMachine",
-        modalStatus: false,
-      }))
+      if (props.update){
+        dispatch(changeModalStatus({
+          modalName: "editMachineInfo",
+          modalStatus: false,
+        }))
+      } else {
+        dispatch(changeModalStatus({
+          modalName: "newMachine",
+          modalStatus: false,
+        }))
+      }
     }
   }
 
@@ -63,8 +77,17 @@ function NewMachineModal(props) {
 
   const checkMachineIfExists = () => {
     const foundMachine = machineList.find(machine => machine.name === machineName)
+    
     if (foundMachine){
-      return true
+      if (props.update){
+        if (props.machineName === machineName){
+          return false
+        } else {
+          return true
+        }
+      } else {
+        return true
+      }
     } else {
       return false
     }
@@ -90,22 +113,6 @@ function NewMachineModal(props) {
       nameInputRef.current.focus()
       return false
 
-    } else if (machineInfo.brand === "") {
-      setError({
-        status: true,
-        message: "Ingrese la marca de la máquina"
-      })
-      brandInputRef.current.focus()
-      return false
-
-    } else if (machineInfo.model === "") {
-      setError({
-        status: true,
-        message: "Ingrese el modelo de la máquina"
-      })
-      modelInputRef.current.focus()
-      return false
-
     } else if (checkMachineIfExists()) {
       setError({
         status: true,
@@ -120,6 +127,22 @@ function NewMachineModal(props) {
         message: "Especifique el tipo de máquina"
       })
       machinignTypeInputRef.current.focus()
+      return false
+
+    } else if (machineInfo.brand === "") {
+      setError({
+        status: true,
+        message: "Ingrese la marca de la máquina"
+      })
+      brandInputRef.current.focus()
+      return false
+
+    } else if (machineInfo.model === "") {
+      setError({
+        status: true,
+        message: "Ingrese el modelo de la máquina"
+      })
+      modelInputRef.current.focus()
       return false
 
     } else if (machineInfo.technology === "") {
@@ -150,7 +173,7 @@ function NewMachineModal(props) {
       return
     } else {
       if (props.update){
-        console.log("Actualizar maquina")
+        updateMachine()
       } else {
         addNewMachine()
       }
@@ -181,31 +204,18 @@ function NewMachineModal(props) {
   }
 
 
-  // Update part info function
-  // const updatePart = () => {
-  //   let totalParts = 0
-  //   partList.forEach((part) => {
-  //       totalParts += parseInt(part.quantity)
-  //   })
-  //   totalParts += parseInt(newPart.quantity)
-  //   totalParts -= parseInt(props.partInfo.quantity)
-  //   dispatch(editProject({
-  //     ot: selectedOt,
-  //     project: {
-  //       partsQuantity: totalParts.toString()
-  //     }
-  //   }))
-  //   dispatch(updatePartInfo({
-  //     ot: selectedOt,
-  //     newPart: newPart,
-  //   }))
+  // Update machine info function
+  const updateMachine = () => {
+    dispatch(editMachineInfo({
+      oldMachineName: props.machineName,
+      newMachineName: machineName,
+      machineInfo: machineInfo
+    }))
 
-  //   props.successFn("La información se actualizó correctamente!")
-  //   dispatch(changeModalStatus({
-  //     modalName: "newPart",
-  //     modalStatus: false,
-  //   }))
-  // }
+    props.successFn("La información se actualizó correctamente")
+
+    setClosebtn(true)
+  }
 
 
   // Error modal controller
@@ -219,22 +229,12 @@ function NewMachineModal(props) {
 
 
   // Edit project info controller
-  // useEffect(() => {
-  //   if (props.partInfo){
-  //     setNewPart({
-  //       selected: false,
-  //       id: props.partInfo.id,
-  //       partName: props.partInfo.partName,
-  //       material: props.partInfo.material,
-  //       quantity: props.partInfo.quantity,
-  //       assembly: props.partInfo.assembly,
-  //       type: props.partInfo.type,
-  //       dimentionUnits: props.partInfo.dimentionUnits,
-  //       generalDimentions: props.partInfo.generalDimentions,
-  //       materialDimentions: props.partInfo.materialDimentions,
-  //     })
-  //   }
-  // },[props.partInfo])
+  useEffect(() => {
+    if (props.update){
+      setMachineName(props.machineName)
+      setMachineInfo({...props.machineInfo})
+    }
+  },[props.partInfo])
 
 
   return (
@@ -309,8 +309,8 @@ function NewMachineModal(props) {
               onChange={(event) => machineInfoValues(event)}
             >
               <option value={"empty"}></option>
-              <option value={"in"}>Convencional</option>
-              <option value={"ft"}>CNC</option>
+              <option value={"Convencional"}>Convencional</option>
+              <option value={"CNC"}>CNC</option>
             </select>
           </div>
         </div>

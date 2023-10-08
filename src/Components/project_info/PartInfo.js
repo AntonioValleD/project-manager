@@ -4,10 +4,8 @@ import NewPartModal from "../modals/NewPartModal"
 import RequestMaterialModal from "../modals/RequestMaterialModal"
 import SetUpQualityInspectionModal from "../modals/SetUpQualityInspectionModal"
 import { useSelector, useDispatch } from "react-redux"
-import { selectOption } from "../../features/partOptionSlice/partOptionSlice"
-import { closePart, changePartAction } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { closePart, changePartAction } from "../../features/appIndexSlice/appIndexStatusSlice"
 import planoPdf from "../assets/documents/Plano.pdf"
-import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import toast, { Toaster } from "react-hot-toast"
 
 

@@ -1,38 +1,38 @@
-import MachineCards from "./MachineCards";
-import TabNav from "../main/TabNav";
-import MachineInfoWindow from "../machine_info/MachineInfoWindow";
-import { useSelector, useDispatch } from "react-redux";
-import { deleteMachineTab, unselectMachineTab, editMachineTab } from "../../features/machine_tabs/machineTabsSlice";
-import { selectMachinePart } from "../../features/productionListSlice/productionListSlice";
+import MachineCards from "./MachineCards"
+import TabNav from "../main/TabNav"
+import MachineStructure from "../machine_info/MachineStructure"
+import { useSelector, useDispatch } from "react-redux"
+import { deleteMachineTab, unselectMachineTab, editMachineTab } from "../../features/machine_tabs/machineTabsSlice"
+import { selectMachinePart } from "../../features/productionListSlice/productionListSlice"
 
 function ProductionWindow() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // TabNav functions
-  const machineTabs = useSelector((state) => state.machineTabs);
-  const selectedMachine = machineTabs.find(machine => machine.selected === true);
+  const machineTabs = useSelector((state) => state.machineTabs)
+  const selectedMachine = machineTabs.find(machine => machine.selected === true)
 
 
   const showTab = (id) => {
     dispatch(editMachineTab(id));
-  };
+  }
   const closeTab = (id) => {
     dispatch(selectMachinePart({
       machine: id,
     }))
-    dispatch(deleteMachineTab(id));
-  };
+    dispatch(deleteMachineTab(id))
+  }
   const goHome = () => {
-    dispatch(unselectMachineTab());
-  };
+    dispatch(unselectMachineTab())
+  }
 
   // Content selector
   let content;
   if (selectedMachine){
-    content = <MachineInfoWindow/>;
+    content = <MachineStructure/>
   } else {
-    content = <MachineCards/>;
+    content = <MachineCards/>
   }
 
   return (
@@ -45,11 +45,11 @@ function ProductionWindow() {
           data={machineTabs}
         />
       </div>
-      <div className="bg-gray-900 absolute left-0 pl-1 w-full flex justify-center">
+      <div className="bg-gray-900 absolute left-0 pl-1">
         {content}
       </div>
     </div>
-  );
+  )
 }
 
-export default ProductionWindow;
+export default ProductionWindow

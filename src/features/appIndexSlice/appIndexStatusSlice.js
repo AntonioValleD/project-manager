@@ -29,7 +29,6 @@ export const appIndexStatus = createSlice({
           ot: ot,
           selected: true,
           projectOptions: {
-            edit: false,
             workRequest: false,
             materialRequest: false,
             reeworks: false,
@@ -45,7 +44,6 @@ export const appIndexStatus = createSlice({
             showProcessPath: false,
             activityReg: false,
             partActions: {
-              edit: false,
               inspectPart: false,
               requestMaterial: false,
               processPath: false,
@@ -121,7 +119,42 @@ export const appIndexStatus = createSlice({
       if (partActions){
         partActions[actionName] = actionStatus
       }
-    }
+    },
+
+
+    // Machine actions
+    openMachine: (state, action) => {
+      const machineName = action.payload.machineName
+
+      const foundMachine = state.productionWindow.find(machine => machine.name === machineName)
+
+      const selectedMachine = state.productionWindow.find(machine => machine.selected === true)
+
+      if (selectedMachine){
+        selectedMachine.selected = false
+      }
+
+      if (foundMachine){
+        foundMachine.selected = true
+      } else {
+        let machineCard = {
+          name: machineName,
+          selected: true,
+          machineOptions: {
+          }
+        }
+        state.productionWindow.push(machineCard)
+      }
+    },
+    closeMachine: (state, action) => {
+      const machineName = action.payload.machineName
+
+      const foundMachine = state.productionWindow.find(machine => machine.name === machineName)
+
+      if (foundMachine){
+        state.productionWindow.splice(state.productionWindow.indexOf(foundMachine), 1)
+      }
+    },
   },
 })
 
@@ -137,6 +170,10 @@ export const {
   openPart,
   closePart,
   changePartOption,
-  changePartAction
+  changePartAction,
+
+  // Machine actions
+  openMachine,
+  closeMachine
 } = appIndexStatus.actions
 export default appIndexStatus.reducer

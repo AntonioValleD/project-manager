@@ -487,13 +487,25 @@ export const machineSlice = createSlice({
   name: "machines",
   initialState: initialState,
   reducers: {
+    // Machine info actions
     addMachine: (state, action) => {
       const newMachine = {...action.payload.newMachine}
 
       state.push(newMachine)
     },
-    editMachine: (state, action) => {
-      console.log(action.payload)
+    editMachineInfo: (state, action) => {
+      const oldMachineName = action.payload.oldMachineName
+      const newMachineName = action.payload.newMachineName
+      const newMachineInfo = {...action.payload.machineInfo}
+
+      const selectedMachine= state.find(machine => machine.name === oldMachineName)
+      if (selectedMachine){
+        selectedMachine.machineInfo = {...newMachineInfo}
+
+        if (oldMachineName !== newMachineName){
+          selectedMachine.name = newMachineName
+        }
+      }
     },
     deleteMachine: (state, action) => {
       const machineName = action.payload.machineName
@@ -579,7 +591,7 @@ export const machineSlice = createSlice({
 export const {
   // Machine info actions
   addMachine,
-  editMachine,
+  editMachineInfo,
   deleteMachine,
   startProductionMachine,
   pauseProductionMachine,

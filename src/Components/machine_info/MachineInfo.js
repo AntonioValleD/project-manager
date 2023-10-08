@@ -1,19 +1,26 @@
-import { useSelector, useDispatch } from "react-redux";
-import "bootstrap/dist/css/bootstrap.min.css";
-import BlueButton from "../assets/buttons/BlueButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import FinishProductionPart from "../modals/FinishProductionParts";
-import { useEffect, useState } from "react";
-import { formaterMS } from "../../functions/timeFromater";
+// CSS import
+import "bootstrap/dist/css/bootstrap.min.css"
+
+// Component import
+import BlueButton from "../assets/buttons/BlueButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import FinishProductionPart from "../modals/FinishProductionParts"
+
+// Redux toolkit reducer import
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+
+// Hook import
+import { useSelector, useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { formaterMS } from "../../functions/timeFromater"
 
 
 function MachineInfo() {
   const dispatch = useDispatch();
 
-  const selectedMachineName = useSelector((state) => state.machineTabs).find(machine => machine.selected === true).id;
+  const selectedMachineName = useSelector(state => state.appIndex).productionWindow.find(machine => machine.selected === true).name
 
-  const machineInfo = useSelector((state) => state.machineList).find(machine => machine.name === selectedMachineName);
+  const selectedMachine = useSelector(state => state.machineList).find(machine => machine.name === selectedMachineName)
 
   const process = useSelector((state) => state.productionList)[selectedMachineName];
 
@@ -118,24 +125,24 @@ function MachineInfo() {
   useEffect(() => {
     let cronometer = null;
 
-    if (machineInfo.operation.running){
+    if (selectedMachine.productionInfo.running){
       cronometer = setInterval(() => {
-        setMachineTime(formaterMS(Date.now() - machineInfo.operation.startTime));
+        setMachineTime(formaterMS(Date.now() - selectedMachine.productionInfo.startTime));
       }, 1000/60);
     } else {
-      setMachineTime(formaterMS(machineInfo.operation.pauseTime - machineInfo.operation.startTime));
+      setMachineTime(formaterMS(selectedMachine.productionInfo.pauseTime - selectedMachine.productionInfo.startTime));
       clearInterval(cronometer);
     }
 
     return () => clearInterval(cronometer);
-  }, [machineInfo.operation.running, selectedMachineName])
+  }, [selectedMachine.productionInfo.running, selectedMachineName])
 
 
   // Death time timer
   useEffect(() => {
     let cronometer = null;
-    let lostTime = machineInfo.operation.deathTime;
-    if (machineInfo.operation.pause){
+    let lostTime = selectedMachine.productionInfo.deathTime;
+    if (selectedMachine.productionInfo.pause){
       cronometer = setInterval(() => {
         setDeathTime(formaterMS(lostTime));
         lostTime += 100;
@@ -146,7 +153,7 @@ function MachineInfo() {
     }
 
     return () => clearInterval(cronometer);
-  }, [selectedMachineName, machineInfo.operation.pause])
+  }, [selectedMachineName, selectedMachine.productionInfo.pause])
 
 
 
@@ -154,20 +161,20 @@ function MachineInfo() {
     <div className="w-5/12 pr-5 pt-1 rounded-sm text-center self-center h-full ">
       {modalWindow}
       <label className="text-lg text-white font-semibold justify-center flex">
-        {machineInfo.name}
+        {selectedMachineName}
       </label>
 
       <div className="flex w-full mb-1 gap-x-4">
         <div className="flex flex-col w-1/2">
           <label className="text-white">Tipo</label>
           <label className="bg-white text-black font-semibold rounded-sm">
-            {machineInfo.type}
+            {selectedMachine.machineInfo.machiningType}
           </label>
         </div>
         <div className="flex flex-col w-full">
           <label className="text-white">Operario</label>
           <label className="bg-white text-black font-semibold rounded-sm">
-            {machineInfo.operator}
+            {selectedMachine.machineInfo.operatorName}
           </label>
         </div>
       </div>
@@ -274,7 +281,7 @@ function MachineInfo() {
         <div className="flex flex-col w-full">
           <label className="text-white">Piezas</label>
           <label className="bg-white font-semibold rounded-sm">
-            {machineInfo.operation.totalParts}
+            {selectedMachine.productionInfo.totalParts}
           </label>
         </div>
         <div className="flex flex-col w-full">

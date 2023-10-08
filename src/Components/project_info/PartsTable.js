@@ -9,7 +9,7 @@ import NewPartModal from "../modals/NewPartModal"
 import DeletePartModal from "../modals/DeletePartModal"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { updatePartsQuantity, deletePart } from "../../features/projects/projectListSlice"
-import { openPart, closePart } from "../../features/selectedPartSlice/appIndexStatusSlice"
+import { openPart, closePart } from "../../features/appIndexSlice/appIndexStatusSlice"
 import toast, { Toaster } from "react-hot-toast"
 
 function PartsTable() {
