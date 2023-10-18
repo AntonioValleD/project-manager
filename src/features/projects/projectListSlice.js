@@ -27,7 +27,8 @@ const initialState = [
         partInfo: {
           name: "Pieza 1",
           material: "Acero 1018",
-          location: "Sin material",
+          location: "Producción",
+          partFinishing: "Pavonado",
           quantity: 25,
           finished: 13,
           rejected: 1,
@@ -41,7 +42,47 @@ const initialState = [
         },
         processPath: {
           status: "",
-          processList: []
+          processList: [
+            {
+              index: 0,
+              name: "Solicitar material",
+              department: "projectArea",
+              startDate: "2021-07-09T00:00:00.000Z",
+              estimatedTime: {
+                days: 0,
+                hours: 0,
+                minuts: 30,
+              },
+              finishDate: "2021-07-09T00:00:00.000Z",
+              status: "Finalizado"
+            },
+            {
+              index: 1,
+              name: "Fresado",
+              department: "productionArea",
+              startDate: "2021-07-09T00:00:00.000Z",
+              estimatedTime: {
+                days: 2,
+                hours: 5,
+                minuts: 30,
+              },
+              finishDate: "",
+              status: "En proceso"
+            },
+            {
+              index: 2,
+              name: "Inspeccion",
+              department: "qualityControlArea",
+              startDate: "",
+              estimatedTime: {
+                days: 2,
+                hours: 5,
+                minuts: 30,
+              },
+              finishDate: "",
+              status: "Pendiente"
+            }
+          ]
         },
         qualityInfo: {
           status: "Sin revisar",
@@ -53,26 +94,23 @@ const initialState = [
           ],
         },
         materialRequest: {
-            status: "Sin solicitar",
-            requestList: [
-                {
-                    requestId: "1",
-                    requestNo: "sccjbsjsdc",
-                    partId: "01",
-                    selected: false,
-                    status: "Entregado",
-                    userName: "Manuel Garcia Valle",
-                    userRequestDate: "2023-05-24T00:00:00.000Z",
-                    warehouseRequestDate: "2023-05-24T00:00:00.000Z",
-                    warehouseArrivalDate: "2023-05-24T00:00:00.000Z",
-                    userDeliveryDate: "2023-05-24T00:00:00.000Z",
-                    material: "Acero 4140T",
-                    generalDimetions: "4 x 4 x 6",
-                    materialDimentions: "4 1/8 x 5 1/8 x 6 1/8",
-                    units: "in",
-                    quantity: "8",
-                },
-            ]
+          status: "Habilitado",
+          requestList: [
+            {
+              id: "1151",
+              status: "Entregado",
+              userName: "Manuel Garcia Valle",
+              userRequestDate: "2023-05-24T00:00:00.000Z",
+              warehouseRequestDate: "2023-05-24T00:00:00.000Z",
+              warehouseArrivalDate: "2023-05-24T00:00:00.000Z",
+              userDeliveryDate: "2023-05-24T00:00:00.000Z",
+              material: "Acero 4140T",
+              generalDimetions: "4 x 4 x 6",
+              materialDimentions: "4 1/8 x 5 1/8 x 6 1/8",
+              units: "in",
+              quantity: "8",
+            },
+          ]
         }
       },
     ],
@@ -187,29 +225,86 @@ export const projectListSlice = createSlice({
     },
 
 
-    // Material request
-    increaseRequestMaterialValue: (state, action) => {
+    // Process path actions
+    addNewPartProcess: (state, action) => {
       const ot = action.payload.ot
-      const modelsQuantity = action.payload.modelsQuantity.toString()
+      const partId = action.payload.partId
+      const newProcess = {...action.payload.newProcess}
+      const processIndex = newProcess.index
 
-      const projectInfo = state.find((project) => project.ot === ot)
+      const processPath = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).processPath
 
-      if (!projectInfo.partModelsQuantity) {
-        projectInfo["partModelsQuantity"] = modelsQuantity
-      }
-
-      if (projectInfo.materialRequestQuantity) {
-        if (
-          projectInfo.partModelsQuantity <= projectInfo.materialRequestQuantity
-        ) {
-          projectInfo.materialRequestQuantity = projectInfo.partModelsQuantity
-        } else {
-          projectInfo.materialRequestQuantity += 1
+      if (processPath.processList){
+        let firstPartArray = []
+        let secondPartArray = []
+        for (let i = 0; i < processIndex; i ++){
+          firstPartArray.push(processPath.processList[i])
         }
-      } else {
-        projectInfo["materialRequestQuantity"] = 1
+        for (let i = processIndex; i < processPath.processList.length; i ++){
+          secondPartArray.push(processPath.processList[i])
+        }
+        
+        let newProcessList = [
+          ...firstPartArray,
+          newProcess,
+          ...secondPartArray
+        ]
+
+        let counter = 0
+        newProcessList.forEach((process) => {
+          process.index = counter
+          counter ++
+        })
+
+        processPath.processList = newProcessList
       }
     },
+    deletePartProcess: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const processIndex = action.payload.processIndex
+
+      const processList = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).processPath.processList
+
+      if (processList){
+        processList.splice(processIndex, 1)
+
+        let counter = 0
+        processList.forEach((process) => {
+          process.index = counter
+          counter ++
+        })
+      }
+    },
+
+    // Material request
+    changeMaterialRequestStatus: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const requestStatus = action.payload.requestStatus
+
+      const materialRequestList = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).materialRequest
+
+      if (materialRequestList){
+        materialRequestList.status = requestStatus
+      }
+    },
+    addMaterialRequest: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const newMaterialRequest = {...action.payload.newMaterialRequest}
+
+      const materialRequest = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).materialRequest
+
+      if (materialRequest.requestList){
+        materialRequest.requestList.push(newMaterialRequest)
+        materialRequest.status = "Solicitado"
+      }
+    }
   },
 })
 
@@ -228,5 +323,13 @@ export const {
   addNewPart,
   updatePartsQuantity,
   deletePart,
+
+  // Process actions
+  addNewPartProcess,
+  deletePartProcess,
+
+  // Material request actions
+  changeMaterialRequestStatus,
+  addMaterialRequest,
 } = projectListSlice.actions
 export default projectListSlice.reducer

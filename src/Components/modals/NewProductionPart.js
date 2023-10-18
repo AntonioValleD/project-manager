@@ -74,8 +74,7 @@ function NewProductionPart(props) {
 
   // Part info controller
   const projectInfo = useSelector(state => state.projectList);
-  const partList = useSelector(state => state.partList);
-
+  const partList = projectInfo.parts
   const resetState = (state) => {
     if (state === "newPart"){
       setNewPart({

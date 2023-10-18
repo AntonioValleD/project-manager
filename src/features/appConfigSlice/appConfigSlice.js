@@ -9,6 +9,11 @@ const initialState = {
       mondayShiftEnd: { hours: 4 },
       weekShiftEnd: { hours: 6 },
     },
+    userInfo: {
+      id: 35,
+      name: "Juan Antonio Valle Duran",
+      department: "Proyectos"
+    }
 }
 
 

@@ -1,39 +1,44 @@
-import { DateTime } from "luxon"
+// Redux toolkit hooks
 import { useSelector, useDispatch } from "react-redux"
-import { useEffect, useState } from "react"
+
+// Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
+
+// React hooks
+import { useEffect, useState } from "react"
+
+// CSS documents
 import "bootstrap/dist/css/bootstrap.min.css"
+
+// Components
+import { DateTime } from "luxon"
 import toast, { Toaster } from 'react-hot-toast'
 import DataTable from "react-data-table-component"
 import SeacrhBar from "../projects/SearchBar"
 import RedButton from "../assets/buttons/RedButton"
 import BlueButton from "../assets/buttons/BlueButton"
 import WarehouseConfirmationModal from "../modals/WarehouseConfirmationModal"
-import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
 
 
-function MaterialRequestList() {
+
+function MaterialRequestList(props) {
   // Hooks
   const dispatch = useDispatch()
 
 
   // Redux state
-  const projectIndex = useSelector(state => state.appIndex).find(project => project.selected === true)
+  const projectIndex = useSelector(state => state.appIndex).projectWindow
+    .find(project => project.selected === true)
 
   const selectedProjectOt = projectIndex.ot
 
-  const partList = useSelector(state => state.projectList).find(project => project.ot === selectedProjectOt).parts
+  const partList = useSelector(state => state.projectList)
+    .find(project => project.ot === selectedProjectOt).parts
 
 
-  // Material request list constructor
-  let materialRequestList = []
-  partList.forEach((part) => {
-    if (part.materialRequest) {
-      part.materialRequest.forEach((request) => {
-        materialRequestList.push(request)
-      })
-    }
-  })
+  // Local component state
+  const [materialRequestList, setMaterialRequestList] = useState([])
 
 
   // Local component states
@@ -50,15 +55,15 @@ function MaterialRequestList() {
   const columns = [
     {
       id: 'main',
-      name: "Pieza",
-      selector: (row) => row.partId,
+      name: "No",
+      selector: (row) => materialRequestList.indexOf(row) + 1,
       sortable: true,
       width: "8%",
       center: true,
     },
     {
-      name: "No.",
-      selector: (row) => row.requestId,
+      name: "Pieza",
+      selector: (row) => row.partId,
       sortable: true,
       width: "4%",
       center: true
@@ -355,10 +360,25 @@ function MaterialRequestList() {
     />
   }
 
+  console.log("Hola");
 
   useEffect(() => {
-    filterRequestList(materialRequestList)
-  },[selectedRequest])
+    let requestList = []
+
+    partList.forEach((part) => {
+      part.materialRequest.requestList.forEach((request) => {
+        let newRequest = {
+          partId: part.id,
+          ...request
+        }
+        requestList.push(newRequest)
+      })
+    })
+
+    console.log(requestList)
+
+    setMaterialRequestList(requestList)
+  },[])
   
 
   return (
@@ -400,7 +420,7 @@ function MaterialRequestList() {
       <div>
         <DataTable
           columns={columns}
-          data={filteredRequestList}
+          data={materialRequestList}
           responsive
           striped
           selectableRowsHighlight

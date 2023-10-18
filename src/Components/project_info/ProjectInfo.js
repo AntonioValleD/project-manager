@@ -1,13 +1,21 @@
+// CSS documents
 import "animate.css"
-import { DateTime } from "luxon"
+
+// Redux toolkit hooks
 import { useSelector, useDispatch } from "react-redux"
+
+// Redux toolkit reducers
 import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+
+// Components
+import { DateTime } from "luxon"
 import toast, { Toaster } from "react-hot-toast"
 import "bootstrap/dist/css/bootstrap.min.css"
 import BlueButton from "../assets/buttons/BlueButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import NewProjectModal from "../modals/NewProjectModal"
-import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+
 
 function ProjectInfo() {
   // Hooks
@@ -15,9 +23,11 @@ function ProjectInfo() {
 
 
   // Global redux state
-  const selectedProjectOt = useSelector((state) => state.appIndex).projectWindow.find((project) => project.selected === true).ot
+  const selectedProjectOt = useSelector((state) => state.appIndex).projectWindow
+    .find((project) => project.selected === true).ot
 
-  const selectedProject = useSelector((state) => state.projectList).find((project) => project.ot === selectedProjectOt)
+  const selectedProject = useSelector((state) => state.projectList)
+    .find((project) => project.ot === selectedProjectOt)
 
   const selectedProjectInfo = selectedProject.projectInfo
 
@@ -28,7 +38,8 @@ function ProjectInfo() {
     } else if (parseInt(selectedProjectInfo.partsQuantity) === 0) {
       return "100%"
     } else {
-      return ((parseInt(selectedProjectInfo.finishedParts) * 100) / parseInt(selectedProjectInfo.partsQuantity)).toFixed(2) + '%';
+      return ((parseInt(selectedProjectInfo.finishedParts) * 100) / 
+        parseInt(selectedProjectInfo.partsQuantity)).toFixed(2) + '%'
     }
   }
 

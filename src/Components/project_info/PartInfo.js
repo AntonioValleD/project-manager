@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { closePart, changePartAction } from "../../features/appIndexSlice/appIndexStatusSlice"
 import planoPdf from "../assets/documents/Plano.pdf"
 import toast, { Toaster } from "react-hot-toast"
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 
 
 function PartInfo() {
@@ -25,6 +26,11 @@ function PartInfo() {
 
   const partDimentions = selectedPart.dimentions
 
+  const processList = selectedPart.processPath.processList
+
+  const currentProcess = processList.find(process => process.status === "En proceso")
+
+
   // Close modal window function
   const closeSelectedPart = () => {
     dispatch(closePart({
@@ -42,7 +48,30 @@ function PartInfo() {
     } else {
       return ((partInfo.finished * 100) / partInfo.quantity).toFixed(2) + '%';
     }
-  };
+  }
+
+
+  // Process finder
+  const previousProcess = () => {
+    if (currentProcess){
+      return processList[currentProcess.index - 1].name
+    } else {
+      return "N/A"
+    }
+  }
+
+  const nextProcess = () => {
+    if (currentProcess){
+      let nextProcessInfo = processList[currentProcess.index + 1]
+      if (nextProcessInfo){
+        return nextProcessInfo.name
+      } else {
+        return "N/A"
+      }
+    } else {
+      return "N/A"
+    }
+  }
 
 
   // Part option functions
@@ -68,9 +97,9 @@ function PartInfo() {
   }
 
   const openRequestMaterial = () => {
-    dispatch(changePartAction({
-      actionName: "requestMaterial",
-      actionStatus: true
+    dispatch(changeModalStatus({
+      modalName: "requestMaterial",
+      modalStatus: true
     }))
   }
 
@@ -126,27 +155,33 @@ function PartInfo() {
         }}
       />
 
-      <div className="w-5/12 pr-3 rounded-sm text-center h-full">
+      <div 
+        className="pr-3 rounded-sm text-center h-full"
+        style={{width: "39vw"}}
+      >
         <label className="text-lg text-white font-semibold justify-center flex">
           Información de pieza
         </label>
 
         <div className="flex gap-x-4 mb-1">
-          <div className="flex flex-col w-4/12">
+          <div className="flex flex-col w-5/12">
             <label>No.</label>
             <label className="bg-white text-black font-semibold rounded-sm">
               {selectedPartId}
             </label>
           </div>
-          <div className="flex flex-col w-full">
-            <label>Nombre</label>
-            <label className="bg-white text-black font-semibold rounded-sm">
+          <div className="flex flex-col w-6/12">
+            <label>Pieza</label>
+            <label 
+              className="bg-white text-black font-semibold rounded-sm whitespace-nowrap text-ellipsis overflow-hidden px-1"
+              title={partInfo.name}
+            >
               {partInfo.name}
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Ensamble</label>
-            <label className="bg-white text-black font-semibold rounded-sm">
+            <label className="bg-white text-black font-semibold rounded-sm whitespace-nowrap text-ellipsis overflow-hidden">
               {partInfo.assembly}
             </label>
           </div>
@@ -210,19 +245,23 @@ function PartInfo() {
           <div className="flex flex-col w-full">
             <label>Proceso anterior</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.previousProcess}
+              {previousProcess()}
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Proceso actual</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.currentProcess}
+              {
+                currentProcess ?
+                currentProcess.name :
+                "N/A"
+              }
             </label>
           </div>
           <div className="flex flex-col w-full">
             <label>Siguiente proceso</label>
             <label className="bg-white text-black font-semibold rounded-sm">
-              {partInfo.nextProcess}
+              {nextProcess()}
             </label>
           </div>
         </div>
@@ -286,7 +325,7 @@ function PartInfo() {
           Opciones
         </label>
 
-        <div title="buttons" className="flex flex-col mt-1 w-full gap-y-2">
+        <div className="flex flex-col mt-1 w-full gap-y-2">
           <div className="flex justify-start gap-x-2 gap-y-2 flex-wrap">
             <BlueButton
               btnText="Editar"
@@ -318,7 +357,7 @@ function PartInfo() {
           </div>
         </div>
       </div>
-      <div className="h-fit items-center">
+      <div className="h-fit items-center mt-1">
         <object
           aria-label="No se encontro el plano"
           type="application/pdf"

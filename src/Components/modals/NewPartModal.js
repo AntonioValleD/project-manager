@@ -33,6 +33,7 @@ function NewPartModal(props) {
     finished: 0,
     rejected: 0,
     assembly: '',
+    partFinishing: 'N/A',
     type: '',
   })
 
@@ -98,6 +99,7 @@ function NewPartModal(props) {
   const idInputRef = useRef(null)
   const typeInputRef = useRef(null)
   const assemblyInputRef = useRef(null)
+  const partFinishingInputRef = useRef(null)
   const materialInputRef = useRef(null)
   const quantityInputRef = useRef(null)
   const unitsInputRef = useRef(null)
@@ -292,11 +294,14 @@ function NewPartModal(props) {
 
   return (
     <div
-      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left`}
+      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen
+        top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
       <div
         style={{ width: "500px" }}
-        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700 animate__animated ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'} animate__faster`}
+        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl
+          shadow-gray-700 animate__animated animate__faster
+          ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'}`}
         onAnimationEnd={() => closeModal()}
       >
         <div className="flex justify-center text-xl font-semibold pb-2">
@@ -348,6 +353,17 @@ function NewPartModal(props) {
               value={newPartInfo.assembly}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="assembly"
+              onChange={(event) => newPartInfoValues(event)}
+            />
+          </div>
+
+          <div className="flex flex-col w-6/12">
+            <label className="font-medium">{`Acabado(s)`}</label>
+            <input
+              ref={partFinishingInputRef}
+              value={newPartInfo.partFinishing}
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+              name="partFinishing"
               onChange={(event) => newPartInfoValues(event)}
             />
           </div>

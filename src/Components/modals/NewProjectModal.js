@@ -1,14 +1,21 @@
+// CSS import
 import "animate.css"
+
+// Hook import
 import { useSelector, useDispatch } from "react-redux"
 import { useState, useRef, useEffect } from "react"
+
+// Redux toolkit reducer import
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { updateProjectTab } from "../../features/project_tabs/projectTabSlice"
-import RedButton from "../assets/buttons/RedButton"
-import GreenButton from "../assets/buttons/GreenButton"
 import { addProject, editProject } from "../../features/projects/projectListSlice"
 import { updateProjectOt } from "../../features/appIndexSlice/appIndexStatusSlice"
-import AlertInfoModal from "./AlertInfoModal"
+
+// Component import
 import { DateTime } from "luxon"
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import AlertInfoModal from "./AlertInfoModal"
 
 
 function NewProjectModal(props) {

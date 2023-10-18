@@ -7,7 +7,6 @@ import machineReducer from '../features/machines/machineSlice'
 import productionListReducer from '../features/productionListSlice/productionListSlice'
 import partOptionReducer from '../features/partOptionSlice/partOptionSlice'
 import modalReducer from '../features/modalSlice/modalSlice'
-import timerSlice from '../features/productionListSlice/timerSlice'
 import projectOptionReducer from '../features/projects/projectOptionSlice'
 import appConfigSlice from '../features/appConfigSlice/appConfigSlice'
 import appIndexStatusSlice from '../features/appIndexSlice/appIndexStatusSlice'
@@ -23,7 +22,6 @@ export const store = configureStore({
     productionList: productionListReducer,
     selectedPartOption: partOptionReducer,
     modalStatus: modalReducer,
-    timerStatus: timerSlice,
     projectOption: projectOptionReducer,
     appConfig: appConfigSlice,
     appIndex: appIndexStatusSlice

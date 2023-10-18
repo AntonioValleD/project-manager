@@ -1,16 +1,23 @@
+// Component import
 import { DateTime } from "luxon"
-import { useSelector, useDispatch } from "react-redux"
-import { useEffect, useState } from "react"
-import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { addProjectTab } from "../../features/project_tabs/projectTabSlice"
-import { openProject } from "../../features/appIndexSlice/appIndexStatusSlice"
-import "bootstrap/dist/css/bootstrap.min.css"
 import toast, { Toaster } from 'react-hot-toast'
 import DataTable from "react-data-table-component"
 import SeacrhBar from "./SearchBar"
 import NewDeleteButton from "../assets/buttons/NewDelete"
 import NewProjectModal from "../modals/NewProjectModal"
 import DeleteProjectModal from "../modals/DeleteProjectModal"
+
+// Hook import
+import { useSelector, useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+
+// Redux toolkit reducer import
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { addProjectTab } from "../../features/project_tabs/projectTabSlice"
+import { openProject } from "../../features/appIndexSlice/appIndexStatusSlice"
+
+// CSS import
+import "bootstrap/dist/css/bootstrap.min.css"
 
 
 function ProjectList() {
@@ -46,7 +53,6 @@ function ProjectList() {
       }, 2000)
     }
   })
-
 
 
   // Table columns definition
@@ -116,6 +122,33 @@ function ProjectList() {
       selector: (row) => {
         return DateTime.fromISO(row.projectInfo.estimatedFinishDate).toLocaleString(DateTime.DATE_MED);
       },
+      conditionalCellStyles: [
+        {
+          when: row => (
+            (DateTime.fromISO(row.projectInfo.estimatedFinishDate)
+              .diff(DateTime.fromISO(row.startDate), 'days').days < 3 &&
+            DateTime.fromISO(row.projectInfo.estimatedFinishDate)
+              .diff(DateTime.fromISO(row.startDate), 'days').days > 0) && row.projectInfo.status !== "Terminado"
+          ),
+          style: {
+            backgroundColor: 'yellow',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => (
+            DateTime.fromISO(row.projectInfo.estimatedFinishDate)
+              .diff(DateTime.fromISO(row.startDate), 'days').days < 0 && row.projectInfo.status !== "Terminado"
+          ),
+          style: {
+            backgroundColor: 'red',
+            color: "white",
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+      ],
       sortable: false,
       width: "9%",
       center: true
@@ -228,15 +261,19 @@ function ProjectList() {
     let inputValue = input.value.toLowerCase();
     let search = projectList.filter((project) => {
       if (project.ot.includes(inputValue) || 
-        project.microsipOt.includes(inputValue) || 
-        project.projectName.toLowerCase().includes(inputValue) || 
-        project.status.toLowerCase().includes(inputValue) || 
-        project.client.toLowerCase().includes(inputValue) || 
-        project.clientUser.toLowerCase().includes(inputValue) ||
-        project.startDate.toLowerCase().includes(inputValue) ||
-        project.estimatedFinishDate.toLowerCase().includes(inputValue) ||
-        project.finishDate.toLowerCase().includes(inputValue) || 
-        project.materialStatus.toLowerCase().includes(inputValue)
+        project.projectInfo.microsipOt.includes(inputValue) || 
+        project.projectInfo.name.toLowerCase().includes(inputValue) || 
+        project.projectInfo.status.toLowerCase().includes(inputValue) || 
+        project.projectInfo.client.toLowerCase().includes(inputValue) || 
+        project.projectInfo.clientUser.toLowerCase().includes(inputValue) ||
+        DateTime.fromISO(project.projectInfo.startDate).toLocaleString(DateTime.DATE_MED).toLowerCase()
+          .includes(inputValue) ||
+        DateTime.fromISO(project.projectInfo.estimatedFinishDate).toLocaleString(DateTime.DATE_MED).toLowerCase()
+          .includes(inputValue) ||
+        DateTime.fromISO(project.projectInfo.finishDate).toLocaleString(DateTime.DATE_MED).toLowerCase()
+          .includes(inputValue) ||
+        (("sin fecha").includes(inputValue) && project.projectInfo.finishDate.toLowerCase() === "") ||
+        project.projectInfo.materialStatus.toLowerCase().includes(inputValue)
       ){
         return project
       }

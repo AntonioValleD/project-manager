@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
 import { selectMachinePart } from "../../features/productionListSlice/productionListSlice";
 import { changeModalStatus } from "../../features/modalSlice/modalSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -22,6 +23,27 @@ function ProductionTable() {
   const productionList = (useSelector((state) => state.productionList))[selectedMachine];
 
   const machineInfo = useSelector((state) => state.machineList).find(machine => machine.name === selectedMachine);
+
+
+  const [nextUpdate, setNextUpdate] = useState(false)
+
+  const [windowResolution, setWindowResolution] = useState({
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight
+  })
+
+  window.addEventListener('resize', () => {
+    if (nextUpdate){
+      setWindowResolution({
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight
+      })
+      setNextUpdate(false)
+      setTimeout(() => {
+        setNextUpdate(true)
+      }, 2000)
+    }
+  })
 
   let productionPart;
   let currentProcess;
@@ -117,7 +139,7 @@ function ProductionTable() {
     }, 
     table: {
       style: {
-        minHeight: "557px"
+        height: `${parseInt(windowResolution.height - 120)}px`
       }
     }
   };
@@ -330,7 +352,7 @@ function ProductionTable() {
 
 
   return (
-    <div className="w-7/12 rounded-sm h-full pl-2">
+    <div className="w-7/12 rounded-sm h-full pr-1">
       {modalWindow}
       <div className="my-2 w-full justify-end flex flex-col pr-2 gap-y-2">
         <label className="text-lg w-full text-center font-semibold text-white">Cola de producción</label>
@@ -357,7 +379,6 @@ function ProductionTable() {
         highlightOnHover
         fixedHeader
         persistTableHead
-        fixedHeaderScrollHeight="557px"
         customStyles={customStyles}
         onRowClicked={(row, event) => selectPart(row.index)}
         conditionalRowStyles={conditionalRowStyles}

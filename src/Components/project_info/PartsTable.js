@@ -68,11 +68,48 @@ function PartsTable() {
       selector: (row) => row.partInfo.material,
       with: '15%',
       center: true,
-      wrap: true
+      wrap: true,
+      conditionalCellStyles: [
+        {
+          when: row => row.materialRequest.status === "Sin solicitar",
+          style: {
+            color: 'white',
+            backgroundColor: 'red',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => row.materialRequest.status === "Solicitado",
+          style: {
+            color: 'black',
+            backgroundColor: 'yellow',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => row.materialRequest.status === "Habilitado",
+          style: {
+            color: 'white',
+            backgroundColor: 'green',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+      ],
     },
     {
-      name: "Estado",
-      selector: (row) => row.materialRequest.status,
+      name: "Proceso actual",
+      selector: (row) => {
+        let currentProcess = row.processPath.processList.find(process => process.status === "En proceso")
+
+        if (currentProcess){
+          return currentProcess.name
+        } else {
+          return "N/A"
+        }
+      },
       with: '15%',
       center: true,
       wrap: true
@@ -87,18 +124,18 @@ function PartsTable() {
       name: "Cantidad",
       selector: (row) => row.partInfo.quantity,
       sortable: true,
-      width: '11%',
+      width: '10%',
       center: true
     },
     {
-      name: "Fabricadas",
+      name: "Liberadas",
       selector: (row) => row.partInfo.finished,
       width: "10%",
       center: true
     },
     {
-      name: "Calidad",
-      selector: (row) => row.qualityInfo.status,
+      name: "Acabado",
+      selector: (row) => row.partInfo.partFinishing,
       width: "16%",
       center: true
     },

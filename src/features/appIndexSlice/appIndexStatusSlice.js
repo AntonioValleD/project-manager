@@ -36,17 +36,12 @@ export const appIndexStatus = createSlice({
           },
           partOptions: {
             selectedPart: "",
-            showDrawing: false,
-            showModel: false,
-            showAssembly: false,
-            showCncCode: false,
-            showDimentionalReport: false,
-            showProcessPath: false,
             activityReg: false,
+            materialRequestList: false,
             partActions: {
               inspectPart: false,
-              requestMaterial: false,
               processPath: false,
+              materialRequestList: false,
               reeworkRequest: false
             }
           }

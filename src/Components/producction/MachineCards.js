@@ -54,7 +54,6 @@ function MachineCards() {
 
   // Double click function
   const openNewMachine = (machineName) => {
-    console.log(machineName);
     dispatch(addMachineTab(machineName))
 
     dispatch(openMachine({
@@ -251,7 +250,7 @@ function MachineCards() {
             <label
               className="bg-white text-black font-semibold pl-1 rounded-sm whitespace-nowrap overflow-hidden text-ellipsis"
             >
-              {productionList[machine.name] ? productionList[machine.name].find(part => part.index === 0).projectName : cardSize.width}
+              {"N/A"}
             </label>
           </div>
           <div
@@ -262,7 +261,7 @@ function MachineCards() {
               <label
                 className="bg-white mr-3 font-semibold rounded-sm whitespace-nowrap overflow-hidden text-ellipsis"
               >
-                {productionList[machine.name] ? productionList[machine.name].find(part => part.index === 0).part : "Pendiente"}
+                {productionList[machine.name] ? productionList[machine.name].find(part => part.index === 0).part : "N/A"}
               </label>
             </div>
             <div className="flex flex-col w-1/3">

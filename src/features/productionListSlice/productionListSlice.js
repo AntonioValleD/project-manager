@@ -1,9 +1,17 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
-let initialState = {};
 
-export const productionListSlice = createSlice({
-    name: 'partList',
+let initialState = {
+    projectArea: [],
+    productionArea: [],
+    qualityControlArea: [],
+    warehouseArea: [],
+    
+}
+
+
+export const partLocationSlice = createSlice({
+    name: 'partLocationSlice',
     initialState: initialState,
     reducers: {
         addProductionPart: (state, action) => {
@@ -133,5 +141,5 @@ export const productionListSlice = createSlice({
     }
 });
 
-export const { addProductionPart, editProductionPart, deleteProductionPart, selectMachinePart, startProductionPart, pauseProductionPart, continueProductionPart, stopProductionPart, updateFinishedParts, setPartRealTime } = productionListSlice.actions;
-export default productionListSlice.reducer;
+export const { addProductionPart, editProductionPart, deleteProductionPart, selectMachinePart, startProductionPart, pauseProductionPart, continueProductionPart, stopProductionPart, updateFinishedParts, setPartRealTime } = partLocationSlice.actions
+export default partLocationSlice.reducer

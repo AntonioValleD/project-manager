@@ -1,14 +1,29 @@
-import { useSelector, useDispatch } from "react-redux";
-import { useState, useRef, useEffect } from "react";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import RedButton from "../assets/buttons/RedButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import AlertInfoModal from "./AlertInfoModal";
-import { getDateNow } from "../../functions/dateConverter";
+// CSS documents
+import "animate.css"
+
+// Redux toolkit hooks
+import { useDispatch } from "react-redux"
+
+// Redux toolkit reducers
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { addNewPartProcess, deletePartProcess } from "../../features/projects/projectListSlice"
+
+// React hooks
+import { useState, useRef, useEffect } from "react"
+
+// Components
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
+import AlertInfoModal from "./AlertInfoModal"
+
 
 function AddPartProcess(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+
+
+  // Local component state
+  const [closeBtn, setCloseBtn] = useState(false)
 
   const [error, setError] = useState({
     status: false,
@@ -16,101 +31,166 @@ function AddPartProcess(props) {
   });
 
   const [newProcess, setNewProcess] = useState({
-    selected: false,
-    index: 0,
-    processName: "",
+    name: "",
     department: "",
-    startDate: "",
-    startTime: "",
-    finishDate: "Pendiente",
-    finishTime: "Pendiente",
-    totalTime: "Pendiente",
-  });
+  })
+
+  const [newProcessIndex, setNewProcessIndex] = useState(props.newProcessIndex + 2)
+
+  const [estimatedTime, setEstimatedTime] = useState({
+    days: 0,
+    hours: 0,
+    minuts: 0,
+  })
+
 
   // Input values
-  const inputValues = (event) => {
+  const newProcessValues = (event) => {
     setNewProcess({
       ...newProcess,
-      [event.target.name]: event.target.value.toString(),
+      [event.target.name]: event.target.value
+    })
+  }
 
-    });
-  };
-
-  /* Funtions */
-  const closeModal = () => {
-    if (props.processInfo){
-      dispatch(
-        changeModalStatus({
-          modalName: "editProcess",
-          modalStatus: false,
-        })
-      );
-    } else {
-      dispatch(
-        changeModalStatus({
-          modalName: "newProcess",
-          modalStatus: false,
-        })
-      );
+  const estimatedTimeValues = (event) => {
+    let value = Number(event.target.value)
+    if (value < 0){
+      value = 0
     }
-  };
+    setEstimatedTime({
+      ...estimatedTime,
+      [event.target.name]: parseFloat(value).toFixed(0)
+    })
+  }
 
-  // Process info
-  const selectedOt = useSelector((state) => state.projectTabs).find(
-    (tab) => tab.selected === true
-  ).id;
-  const selectedPartId = useSelector((state) => state.selectedPart).find(part => part.ot === selectedOt).partId;
+  
+  // Close modal window
+  const closeModal = () => {
+    if (closeBtn){
+      if (props.update){
+        dispatch(changeModalStatus({
+          modalName: "editProcess",
+          modalStatus: false
+        }))
+      } else {
+        dispatch(changeModalStatus({
+          modalName: "newProcess",
+          modalStatus: false
+        }))
+      }
+    }
+  }
+
+  const closeWindow = () => {
+    setCloseBtn(true)
+  }
+
+
+  // Input references
+  const nameInputRef = useRef(null)
+  const departmentInputRef = useRef(null)
+  const daysInputRef = useRef(null)
+
 
   // Submit new process info
-  const submitNewProcess = () => {
-    if (newProcess.processName === "") {
+  const checkProcessInfo = () => {
+    if (newProcess.name === "") {
       setError({
         status: true,
         message: "Ingrese el nombre del proceso",
-      });
-      processNameInputRef.current.focus();
-      return;
+      })
+      nameInputRef.current.focus()
+      return false
+
     } else if (newProcess.department === "") {
       setError({
         status: true,
-        message: "Ingrese el departamento",
-      });
-      departmentInputRef.current.focus();
-      return;
-    } 
+        message: "Ingrese el departamento encargado",
+      })
+      departmentInputRef.current.focus()
+      return false
 
-    if (!props.processInfo) {
-      addNewProcess();
+    } else if (
+      estimatedTime.days < 1 &&
+      estimatedTime.hours < 1 &&
+      estimatedTime.minuts < 1
+    ){
+      setError({
+        status: true,
+        message: "Ingrese el tiempo estimado",
+      })
+      daysInputRef.current.focus()
+      return false
     } else {
-      updateProcess();
+      return true
     }
-  };
+  }
+
 
   // Add new process function
   const addNewProcess = () => {
+    let newProcessConsturctor = {
+      index: parseInt(newProcessIndex) - 1,
+      ...newProcess,
+      startDate: "",
+      estimatedTime: {
+        days: parseInt(estimatedTime.days),
+        hours: parseInt(estimatedTime.hours),
+        minuts: parseInt(estimatedTime.minuts)
+      },
+      finishDate: "",
+      status: "Pendiente"
+    }
 
-    dispatch(
-      changeModalStatus({
-        modalName: "newProcess",
-        modalStatus: false,
-      })
-    );
-  };
+    dispatch(addNewPartProcess({
+      ot: props.ot,
+      partId: props.partId,
+      newProcess: newProcessConsturctor
+    }))
+
+    props.successFn("El proceso se agregó correctamente")
+
+    setCloseBtn(true)
+  }
+
 
   // Update process info function
   const updateProcess = () => {
+    dispatch(deletePartProcess({
+      ot: props.ot,
+      partId: props.partId,
+      processIndex: props.processInfo.index
+    }))
 
-    dispatch(
-      changeModalStatus({
-        modalName: "editProcess",
-        modalStatus: false,
-      })
-    );
-  };
+    addNewProcess()
+  }
 
-  // Input references
-  const processNameInputRef = useRef(null);
-  const departmentInputRef = useRef(null);
+
+  // Submit process information
+  const submitProcessInfo = () => {
+    if (!checkProcessInfo()){
+      return
+    }
+
+    if (props.update) {
+      updateProcess()
+    } else {
+      addNewProcess()
+    }
+  }
+
+
+  // Calculate index array 
+  const indexArray = () => {
+    let indexArray = []
+
+    for (let i = props.currentProcessIndex; i <= props.newProcessIndex; i ++){
+      indexArray.push(`${i + 2}`)
+    }
+  
+    return indexArray.reverse()
+  }
+
 
   // Error modal controller
   let errorInfo;
@@ -118,62 +198,127 @@ function AddPartProcess(props) {
     errorInfo = <AlertInfoModal
       message={error.message}
       textColor="red"
-    />;
+    />
   }
 
-  // Edit project info controller
+
   useEffect(() => {
-    if (props.processInfo) {
+    if (props.update){
+      setNewProcessIndex(props.processInfo.index + 1)
+
       setNewProcess({
-        processName: props.processInfo.processName,
+        name: props.processInfo.name,
         department: props.processInfo.department,
-      });
-    } else {
-      let dateNow = new Date();
-      setNewProcess({
-        ...newProcess,
-        startDate: getDateNow(),
-        startTime: dateNow.toLocaleTimeString(),
+      })
+
+      setEstimatedTime({
+        days: props.processInfo.estimatedTime.days,
+        hours: props.processInfo.estimatedTime.hours,
+        minuts: props.processInfo.estimatedTime.minuts,
       })
     }
-  }, [props.processInfo]);
+  }, [])
+
 
   return (
     <div
-      title="Overlay"
-      style={{ background: "rgba(0, 0, 0, 0.3)" }}
-      className="fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left"
+      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
       <div
-        title="Modal Container"
-        style={{ width: "500px" }}
-        className="h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700"
+        style={{ width: "450px" }}
+        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700 animate__animated ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'} animate__faster`}
+        onAnimationEnd={() => closeModal()}
       >
         <div className="flex justify-center text-xl font-semibold pb-2">
-          <label>Nuevo proceso</label>
+          <label>{props.textTitle}</label>
         </div>
 
         <div className="flex w-full gap-x-4 mb-1">
           <div className="flex flex-col w-full">
-            <label className="font-medium">Nombre</label>
+            <label className="font-medium">Nombre del proceso</label>
             <input
-              ref={processNameInputRef}
-              value={newProcess.processName}
+              ref={nameInputRef}
+              value={newProcess.name}
               className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
-              name="processName"
+              name="name"
               type="text"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newProcessValues(event)}
             />
           </div>
-          <div className="flex flex-col w-6/12">
+
+          <div className="flex flex-col w-10/12">
             <label className="font-medium">Departamento</label>
-            <input
-              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+            <select
               ref={departmentInputRef}
               value={newProcess.department}
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
               name="department"
-              type="text"
-              onChange={(event) => inputValues(event)}
+              onChange={(event) => newProcessValues(event)}
+            >
+              <option value={""}></option>
+              <option value={"projectArea"}>Proyectos</option>
+              <option value={"productionArea"}>Producción</option>
+              <option value={"qualityControlArea"}>Control de calidad</option>
+              <option value={"warehouseArea"}>Almacén</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col w-5/12">
+            <label className="font-medium">Posición</label>
+            <select
+              value={newProcessIndex}
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+              name="department"
+              onChange={(event) => setNewProcessIndex(event.target.value)}
+            >
+              {
+                indexArray().map((processIndex) => (
+                  <option
+                    key={processIndex}
+                    value={processIndex}
+                  >
+                    {processIndex}
+                  </option>
+                ))
+              }
+            </select>
+          </div>
+        </div>
+
+        <label className="font-medium text-center w-full mt-1">Tiempo estimado</label>
+
+        <div className="flex w-full gap-x-4 mb-1">
+          <div className="flex flex-col w-full">
+            <label className="font-medium">Días</label>
+            <input
+              ref={daysInputRef}
+              value={estimatedTime.days}
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+              name="days"
+              type="number"
+              onChange={(event) => estimatedTimeValues(event)}
+            />
+          </div>
+          
+          <div className="flex flex-col w-full">
+            <label className="font-medium">Horas</label>
+            <input
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+              value={estimatedTime.hours}
+              name="hours"
+              type="number"
+              onChange={(event) => estimatedTimeValues(event)}
+            />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <label className="font-medium">Minutos</label>
+            <input
+              className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
+              value={estimatedTime.minuts}
+              name="minuts"
+              type="number"
+              onChange={(event) => estimatedTimeValues(event)}
             />
           </div>
         </div>
@@ -181,8 +326,8 @@ function AddPartProcess(props) {
         {errorInfo}
 
         <div className="flex justify-end gap-x-4 mt-3">
-          <GreenButton btnText="Guardar" btnAction={submitNewProcess} />
-          <RedButton btnText="Cancelar" btnAction={closeModal} />
+          <GreenButton btnText="Guardar" btnAction={submitProcessInfo} />
+          <RedButton btnText="Cancelar" btnAction={closeWindow} />
         </div>
       </div>
     </div>
