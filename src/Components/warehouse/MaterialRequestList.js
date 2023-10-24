@@ -40,15 +40,33 @@ function MaterialRequestList(props) {
   // Local component state
   const [materialRequestList, setMaterialRequestList] = useState([])
 
+  const [selectedPartId, setSelectedPartId] = useState("")
 
-  // Local component states
   const [selectedRow, setSelectedRow] = useState('')
 
   const [confirmationInfo, setConfirmationInfo] = useState({})
 
   const [filteredRequestList, filterRequestList] = useState(materialRequestList)
 
-  const selectedRequest = materialRequestList.find(request => request.requestNo === selectedRow)
+  const [windowResolution, setWindowResolution] = useState({
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight
+  })
+
+  const [nextUpdate, setNextUpdate] = useState(true)
+
+  window.addEventListener('resize', () => {
+    if (nextUpdate){
+      setWindowResolution({
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight
+      })
+      setNextUpdate(false)
+      setTimeout(() => {
+        setNextUpdate(true)
+      }, 2000)
+    }
+  })
 
   
   // Table columns definition
@@ -58,28 +76,21 @@ function MaterialRequestList(props) {
       name: "No",
       selector: (row) => materialRequestList.indexOf(row) + 1,
       sortable: true,
-      width: "8%",
+      width: "5%",
       center: true,
     },
     {
       name: "Pieza",
       selector: (row) => row.partId,
       sortable: true,
-      width: "4%",
+      width: "5%",
       center: true
     },
     {
       name: "Material",
       selector: (row) => row.material,
       sortable: false,
-      width: '10%',
-      center: true
-    },
-    {
-      name: "Estado",
-      selector: (row) => row.status,
-      sortable: false,
-      width: '10%',
+      width: '11%',
       center: true
     },
     {
@@ -90,10 +101,28 @@ function MaterialRequestList(props) {
       center: true
     },
     {
+      name: "Estado",
+      selector: (row) => row.status,
+      sortable: false,
+      conditionalCellStyles: [
+        {
+          when: row => row.status === "Entregado",
+          style: {
+            color: 'white',
+            backgroundColor: 'green',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+      ],
+      width: '8%',
+      center: true
+    },
+    {
       name: "Solicitante",
       selector: (row) => row.userName,
       sortable: false,
-      width: '15%',
+      width: '18%',
       center: true
     },
     {
@@ -148,13 +177,8 @@ function MaterialRequestList(props) {
       width: "12%",
       center: true
     },
-    {
-      name: "Selected row",
-      selector: (row) => row.selected,
-      sortable: false,
-      omit: true,
-    },
-  ];
+  ]
+
 
   // Table custom styles
   const customStyles = {
@@ -185,15 +209,16 @@ function MaterialRequestList(props) {
     },
     table: {
       style: {
-        minHeight: "575px"
+        height: `${parseInt(windowResolution.height - 145)}px`
       }
     },
   }
 
+
   // Conditional table row styles
   let conditionalRowStyles = [
     {
-      when: row => row.requestNo === selectedRow,
+      when: row => row.id === selectedRow,
       style: {
         backgroundColor: 'rgb(21 128 61)',
         color: 'white',
@@ -201,10 +226,15 @@ function MaterialRequestList(props) {
     },
   ]
 
-  // Select table row function
-  const selectRow = async (requestNo) => {
-    setSelectedRow(requestNo)
+
+  // Pagination config
+  const paginationComponentOptions = {
+    rowsPerPageText: 'Filas por página',
+    rangeSeparatorText: 'de',
+    selectAllRowsItem: true,
+    selectAllRowsItemText: 'Todos',
   }
+
 
   // Close material request window function
   const closeMaterialRequestWindow = () => {
@@ -215,20 +245,39 @@ function MaterialRequestList(props) {
   }
 
 
+  // Select row
+  const selectRow = (requestId) => {
+    setSelectedRow(requestId)
+    setSelectedPartId(materialRequestList.find(request => request.id === requestId).partId)
+  }
+
+
+  const selectedRequest = {}
   // Button functions
   const requestMaterial = () => {
     if (selectedRow === ''){
-      toast.error("No hay ninguna solicitud seleccionada");
-    } else if (selectedRequest.status === "Cancelado"){
-      toast.error("La solicitud ha sido cancelada");
-    } else if (selectedRequest.warehouseRequestDate !== ''){
-      toast.error("El material ya ha sido comprado");
+      toast.error("No hay ninguna solicitud seleccionada")
+      return
+    } 
+
+    const requestStatus = materialRequestList
+      .find(request => request.id === selectedRow).status
+    
+    if (requestStatus === "Cancelado"){
+      toast.error("La solicitud ha sido cancelada")
+
+    } else if (requestStatus !== "Solicitado"){
+      toast.error("El material ya ha sido comprado")
+
     } else {
       setConfirmationInfo({
         title: "Comprar material",
         description: "¿Esta seguro de que desea comprar el material seleccionado?",
-        action: "materialRequest",
-      });
+        requestDate: "warehouseRequestDate",
+        requestStatus: "Comprado",
+        successMessage: "La solicitud se ha registrado como comprada"
+      })
+
       dispatch(changeModalStatus({
         modalName: "warehouseConfirmation",
         modalStatus: true,
@@ -302,28 +351,16 @@ function MaterialRequestList(props) {
     }
   };
 
-  const confirmationSuccess = (action) => {
-
-    if (action === "materialRequest"){
-      successNotify("El material se compró correctamente");
-    } else if (action === "materialEnable"){
-      successNotify("El material se habilitó correctamente");
-    } else if (action === "materialDelivery"){
-      successNotify("El material se entregó correctamente");
-    } else if (action === "cancelRequest"){
-      successNotify("La solicitud seleccionada ha sido cancelada");
-    }
-  };
 
   const generateRequestDocument = () => {
-    console.log("Generar solicitud (documento de excel)");
-  };
+    console.log("Generar solicitud (documento de excel)")
+  }
 
 
   // Success notification function
-  const successNotify = (message) => {
-    toast.success(message);
-  };
+  const successFn = (message) => {
+    toast.success(message)
+  }
 
 
   // List filter function
@@ -349,18 +386,22 @@ function MaterialRequestList(props) {
 
 
   // Modal window selector
-  const modalStatus = useSelector(state => state.modalStatus);
-  let modalWindow;
+  const modalStatus = useSelector(state => state.modalStatus)
+  let modalWindow
   if (modalStatus.warehouseConfirmation){
     modalWindow = <WarehouseConfirmationModal
       textTitle={confirmationInfo.title}
       textDescription={confirmationInfo.description}
-      action={confirmationInfo.action}
-      acceptFn={confirmationSuccess}
+      requestDate={confirmationInfo.requestDate}
+      requestStatus={confirmationInfo.requestStatus}
+      successMessage={confirmationInfo.successMessage}
+      ot={selectedProjectOt}
+      partId={selectedPartId}
+      requestId={selectedRow}
+      successFn={successFn}
     />
   }
 
-  console.log("Hola");
 
   useEffect(() => {
     let requestList = []
@@ -375,15 +416,13 @@ function MaterialRequestList(props) {
       })
     })
 
-    console.log(requestList)
-
     setMaterialRequestList(requestList)
-  },[])
+  }, [partList])
   
 
   return (
-    <div className="w-full px-2 pt-2 rounded-sm">
-      <div className="mb-4 flex items-center gap-x-6 w-full">
+    <div className="w-full pt-2 rounded-sm">
+      <div className="mb-2 flex items-center gap-x-6 w-full">
         <SeacrhBar
           inputText={searchInput}
         />
@@ -427,19 +466,21 @@ function MaterialRequestList(props) {
           highlightOnHover
           fixedHeader
           persistTableHead
-          fixedHeaderScrollHeight="575px"
           customStyles={customStyles}
-          onRowClicked={row => selectRow(row.requestNo)}
+          onRowClicked={row => selectRow(row.id)}
           conditionalRowStyles={conditionalRowStyles}
           defaultSortFieldId={'main'}
           defaultSortAsc={true}
+          pagination
+          paginationComponentOptions={paginationComponentOptions}
+          paginationPerPage={15}
         />
       </div>
       {modalWindow}
       <Toaster
         toastOptions={{
           position: "top-center",
-          duration: 3000,
+          duration: 2000,
           style: {
             background: '#363636',
             color: '#fff',

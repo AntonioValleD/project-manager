@@ -31,15 +31,14 @@ function ProjectList() {
   // React state
   const [filteredProjects, filterProjects] = useState(projectList)
 
-  const [nextUpdate, setNextUpdate] = useState(true)
+  const [selectedProject, setSelectedProject] = useState("")
 
   const [windowResolution, setWindowResolution] = useState({
     width: window.document.documentElement.clientWidth,
     height: window.document.documentElement.clientHeight
   })
 
-  const [selectedProject, setSelectedProject] = useState("")
-
+  const [nextUpdate, setNextUpdate] = useState(true)
 
   window.addEventListener('resize', () => {
     if (nextUpdate){

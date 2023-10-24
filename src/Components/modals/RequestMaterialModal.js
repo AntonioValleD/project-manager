@@ -150,7 +150,7 @@ function RequestMaterialModal(props) {
     let materialRequestConstructor = {
       id: uuidv4(),
       userName: userInfo.name,
-      status: "solicitado",
+      status: "Solicitado",
       userRequestDate: DateTime.local().toString(),
       warehouseRequestDate: "",
       warehouseArrivalDate: "",

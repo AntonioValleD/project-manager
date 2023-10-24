@@ -1,37 +1,67 @@
-import { useDispatch } from "react-redux";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import GreenButton from "../assets/buttons/GreenButton";
-import RedButton from "../assets/buttons/RedButton";
+// Redux toolkit hooks
+import { useDispatch } from "react-redux"
+
+// React hooks 
+import { useState } from "react"
+
+// Redux toolkit reducers
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { setRequestDate } from "../../features/projects/projectListSlice"
+
+// Components
+import GreenButton from "../assets/buttons/GreenButton"
+import RedButton from "../assets/buttons/RedButton"
+
 
 function WarehouseConfirmationModal(props) {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+
+
+  // Local component state
+  const [closeBtn, setCloseBtn] = useState(false)
 
 
   /* Funtions */
   const acceptFn = () => {
-    props.acceptFn(props.action);
-    cancelFn();
-  };
+    dispatch(setRequestDate({
+      ot: props.ot,
+      partId: props.partId,
+      requestId: props.requestId,
+      requestDate: props.requestDate,
+      requestStatus: props.requestStatus,
+    }))
 
-  const cancelFn = () => {
-    dispatch(changeModalStatus({
-      modalName: "warehouseConfirmation",
-      modalStatus: false
-    }));
-  };
+    props.successFn(props.successMessage)
+
+    closeWindow()
+  }
+
+  const closeModal = () => {
+    if (closeBtn){
+      dispatch(changeModalStatus({
+        modalName: "warehouseConfirmation",
+        modalStatus: false
+      }))
+    }
+  }
+
+  const closeWindow = () => {
+    setCloseBtn(true)
+  }
 
 
   return (
     <div
-      title="Overlay"
-      style={{ background: "rgba(0, 0, 0, 0.3)" }}
-      className="fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center"
+      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen
+        top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
       <div
-        title="Modal Container"
         style={{ width: "500px" }}
-        className="h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700"
+        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl
+          shadow-gray-700 animate__animated animate__faster
+          ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'}`}
+        onAnimationEnd={() => closeModal()}
       >
         <div className="flex justify-center text-xl font-semibold mb-2">
           <label>{props.textTitle}</label>
@@ -48,7 +78,7 @@ function WarehouseConfirmationModal(props) {
             btnText="Aceptar"
             btnAction={acceptFn}
           />
-          <RedButton btnText="Cerrar" btnAction={cancelFn} />
+          <RedButton btnText="Cerrar" btnAction={closeWindow} />
         </div>
       </div>
     </div>

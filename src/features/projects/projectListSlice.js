@@ -304,6 +304,23 @@ export const projectListSlice = createSlice({
         materialRequest.requestList.push(newMaterialRequest)
         materialRequest.status = "Solicitado"
       }
+    },
+    setRequestDate: (state, action) => {
+      console.log(action.payload);
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const requestId = action.payload.requestId
+      const requestDate = action.payload.requestDate
+      const requestStatus = action.payload.requestStatus
+
+      const materialRequest = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).materialRequest.requestList
+        .find(request => request.id === requestId)
+
+      if (materialRequest){
+        materialRequest[requestDate] = DateTime.local().toString()
+        materialRequest.status = requestStatus
+      }
     }
   },
 })
@@ -331,5 +348,6 @@ export const {
   // Material request actions
   changeMaterialRequestStatus,
   addMaterialRequest,
+  setRequestDate,
 } = projectListSlice.actions
 export default projectListSlice.reducer
