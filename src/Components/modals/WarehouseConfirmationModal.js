@@ -6,7 +6,7 @@ import { useState } from "react"
 
 // Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { setRequestDate } from "../../features/projects/projectListSlice"
+import { setRequestDate, cancelMaterialRequest } from "../../features/projects/projectListSlice"
 
 // Components
 import GreenButton from "../assets/buttons/GreenButton"
@@ -24,13 +24,21 @@ function WarehouseConfirmationModal(props) {
 
   /* Funtions */
   const acceptFn = () => {
-    dispatch(setRequestDate({
-      ot: props.ot,
-      partId: props.partId,
-      requestId: props.requestId,
-      requestDate: props.requestDate,
-      requestStatus: props.requestStatus,
-    }))
+    if (props.requestDate !== "cancelRequest"){
+      dispatch(setRequestDate({
+        ot: props.ot,
+        partId: props.partId,
+        requestId: props.requestId,
+        requestDate: props.requestDate,
+        requestStatus: props.requestStatus,
+      }))
+    } else {
+      dispatch(cancelMaterialRequest({
+        ot: props.ot,
+        partId: props.partId,
+        requestId: props.requestId,
+      }))
+    }
 
     props.successFn(props.successMessage)
 

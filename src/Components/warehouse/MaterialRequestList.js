@@ -114,6 +114,15 @@ function MaterialRequestList(props) {
             margin: "4px 0"
           }
         },
+        {
+          when: row => row.status === "Cancelado",
+          style: {
+            color: 'white',
+            backgroundColor: 'Red',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
       ],
       width: '8%',
       center: true
@@ -283,73 +292,103 @@ function MaterialRequestList(props) {
         modalStatus: true,
       }))
     }
-  };
+  }
+
 
   const enableMaterial = () => {
     if (selectedRow === ''){
-      toast.error("No hay ninguna solicitud seleccionada");
-    } else if (selectedRequest.status === "Cancelado"){
-      toast.error("La solicitud ha sido cancelada");
-    } else if (selectedRequest.warehouseRequestDate === ''){
-      toast.error("El material aún no se ha comprado");
-    } else if (selectedRequest.warehouseArrivalDate !== ''){
-      toast.error("El material ya ha sido habilitao");
+      toast.error("No hay ninguna solicitud seleccionada")
+      return
+    } 
+
+    const requestStatus = materialRequestList
+      .find(request => request.id === selectedRow).status
+    
+    if (requestStatus === "Cancelado"){
+      toast.error("La solicitud ha sido cancelada")
+
+    } else if (requestStatus !== "Comprado"){
+      toast.error("El material ya ha sido habilitado ó aún no ha sido comprado")
+
     } else {
       setConfirmationInfo({
         title: "Habilitar material",
         description: "¿Esta seguro de que desea habilitar el material seleccionado?",
-        action: "materialEnable"
-      });
+        requestDate: "warehouseArrivalDate",
+        requestStatus: "Habilitado",
+        successMessage: "El material se ha registrado como habilitado"
+      })
+
       dispatch(changeModalStatus({
         modalName: "warehouseConfirmation",
         modalStatus: true,
       }))
     }
-  };
+  }
+
 
   const deliveryMaterial = () => {
     if (selectedRow === ''){
-      toast.error("No hay ninguna solicitud seleccionada");
-    } else if (selectedRequest.status === "Cancelado"){
-      toast.error("La solicitud ha sido cancelada");
-    } else if (selectedRequest.warehouseRequestDate === ''){
-      toast.error("El material aún no se ha comprado");
-    } else if (selectedRequest.warehouseArrivalDate === ''){
-      toast.error("El material aún no ha sido habilitado");
-    } else if (selectedRequest.userDeliveryDate !== ''){
-      toast.error("El material ya ha sido entregado");
+      toast.error("No hay ninguna solicitud seleccionada")
+      return
+    } 
+
+    const requestStatus = materialRequestList
+      .find(request => request.id === selectedRow).status
+    
+    if (requestStatus === "Cancelado"){
+      toast.error("La solicitud ha sido cancelada")
+
+    } else if (requestStatus !== "Habilitado"){
+      toast.error("El material ya ha sido entregado ó aún no ha sido habilitado")
+
     } else {
       setConfirmationInfo({
         title: "Entregar material",
         description: "¿Esta seguro de que desea entregar el material seleccionado?",
-        action: "materialDelivery"
-      });
+        requestDate: "userDeliveryDate",
+        requestStatus: "Entregado",
+        successMessage: "El material se ha registrado como entregado"
+      })
+
       dispatch(changeModalStatus({
         modalName: "warehouseConfirmation",
         modalStatus: true,
       }))
     }
-  };
+  }
+
 
   const cancelRequest = () => {
     if (selectedRow === ''){
-      toast.error("No hay ninguna solicitud seleccionada");
-    } else if (selectedRequest.status === "Cancelado"){
-      toast.error("La solicitud ya ha sido cancelada");
-    } else if (selectedRequest.status === "Entregado"){
-      toast.error("El material ya ha sido entregado");
+      toast.error("No hay ninguna solicitud seleccionada")
+      return
+    } 
+
+    const requestStatus = materialRequestList
+      .find(request => request.id === selectedRow).status
+    
+    if (requestStatus === "Cancelado"){
+      toast.error("La solicitud ya ha sido cancelada")
+
+    } else if (requestStatus !== "Solicitado"){
+      toast.error("Esta solicitud no puede ser cancelada")
+
     } else {
       setConfirmationInfo({
         title: "Cancelar solicitud",
         description: "¿Esta seguro de que desea cancelar la solicitud seleccionada?",
-        action: "cancelRequest"
-      });
+        requestDate: "cancelRequest",
+        successMessage: "La solicitud ha sido cancelada"
+      })
+
       dispatch(changeModalStatus({
         modalName: "warehouseConfirmation",
         modalStatus: true,
       }))
     }
-  };
+  }
+
 
 
   const generateRequestDocument = () => {

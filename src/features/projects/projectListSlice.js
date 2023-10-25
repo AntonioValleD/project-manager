@@ -306,7 +306,6 @@ export const projectListSlice = createSlice({
       }
     },
     setRequestDate: (state, action) => {
-      console.log(action.payload);
       const ot = action.payload.ot
       const partId = action.payload.partId
       const requestId = action.payload.requestId
@@ -320,6 +319,19 @@ export const projectListSlice = createSlice({
       if (materialRequest){
         materialRequest[requestDate] = DateTime.local().toString()
         materialRequest.status = requestStatus
+      }
+    },
+    cancelMaterialRequest: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const requestId = action.payload.requestId
+
+      const materialRequest = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).materialRequest.requestList
+        .find(request => request.id === requestId)
+
+      if (materialRequest){
+        materialRequest.status = "Cancelado"
       }
     }
   },
@@ -349,5 +361,6 @@ export const {
   changeMaterialRequestStatus,
   addMaterialRequest,
   setRequestDate,
+  cancelMaterialRequest
 } = projectListSlice.actions
 export default projectListSlice.reducer
