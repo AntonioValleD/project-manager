@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux"
 // Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { changeProjectOption } from "../../features/appIndexSlice/appIndexStatusSlice"
+import { changeMaterialRequestStatus } from "../../features/projects/projectListSlice"
 
 // React hooks
 import { useEffect, useState } from "react"
@@ -446,13 +447,28 @@ function MaterialRequestList(props) {
     let requestList = []
 
     partList.forEach((part) => {
+      let materialStatus = true
+
       part.materialRequest.requestList.forEach((request) => {
+        if (request.status !== "Entregado" && request.status !== "Cancelado"){
+          materialStatus = false
+        }
+
         let newRequest = {
           partId: part.id,
           ...request
         }
+
         requestList.push(newRequest)
       })
+
+      if (materialStatus){
+        dispatch(changeMaterialRequestStatus({
+          ot: selectedProjectOt,
+          partId: part.id,
+          requestStatus: "Habilitado"
+        }))
+      }
     })
 
     setMaterialRequestList(requestList)

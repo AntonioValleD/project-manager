@@ -131,6 +131,8 @@ function PartInfo() {
     modalWindow = <RequestMaterialModal
       textTitle="Solicitar material"
       successFn={successNotify}
+      partInfo={partInfo}
+      partDimentions={partDimentions}
     />
   } else if (modalStatus.setUpQualityInspection){
     modalWindow = <SetUpQualityInspectionModal

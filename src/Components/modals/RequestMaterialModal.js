@@ -32,11 +32,6 @@ function RequestMaterialModal(props) {
 
   const partId = selectedProjectIndex.partOptions.selectedPart
 
-  const selectedPart = useSelector(state => state.projectList)
-    .find(project => project.ot === selectedOt).parts.find(part => part.id === partId)
-
-  const partInfo = selectedPart.partInfo
-
 
   // Redux toolkit state
   const userInfo = useSelector(state => state.appConfig).userInfo
@@ -51,11 +46,11 @@ function RequestMaterialModal(props) {
   })
 
   const [materialRequest, setMaterialRequest] = useState({
-    material: "Acero 4140T",
-    generalDimetions: "4 x 4 x 6",
-    materialDimentions: "4 1/8 x 5 1/8 x 6 1/8",
-    units: "in",
-    quantity: 8,
+    material: props.partInfo.material,
+    generalDimetions: props.partDimentions.generalDimentions,
+    materialDimentions: props.partDimentions.materialDimentions,
+    units: props.partDimentions.units,
+    quantity: props.partInfo.quantity,
   })
 
 

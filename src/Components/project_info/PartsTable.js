@@ -60,7 +60,7 @@ function PartsTable() {
       name: "Pieza",
       selector: (row) => row.partInfo.name,
       sortable: true,
-      width: "15%",
+      width: "18%",
       center: true
     },
     {
@@ -170,7 +170,8 @@ function PartsTable() {
     },
     table: {
       style: {
-        height: `${parseInt(windowResolution.height - 160)}px`
+        height: `${parseInt(windowResolution.height - 160)}px`,
+        width: "61vw"
       }
     }
   }
