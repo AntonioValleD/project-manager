@@ -11,7 +11,10 @@ const initialState = {
     },
     userInfo: {
       id: 35,
-      name: "Juan Antonio Valle Duran",
+      name: "Juan Antonio",
+      lastName: "Valle Duran",
+      shortName: "JA",
+      email: "juan.valle.d1@gmail.com",
       department: "Proyectos"
     }
 }

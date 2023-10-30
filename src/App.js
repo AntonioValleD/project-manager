@@ -18,8 +18,11 @@ function App() {
   }
 
   return (
-    <div className="bg-gray-900 h-screen p-1">
+    <div 
+      className="bg-gray-900 h-screen p-1"
+    >
       <Header/>
+
       {content}
     </div>
   );

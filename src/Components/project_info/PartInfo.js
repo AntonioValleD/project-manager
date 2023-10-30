@@ -90,9 +90,9 @@ function PartInfo() {
   }
 
   const openEditPart = () => {
-    dispatch(changePartAction({
-      actionName: "edit",
-      actionStatus: true
+    dispatch(changeModalStatus({
+      modalName: "newPart",
+      modalStatus: true
     }))
   }
 
@@ -124,8 +124,11 @@ function PartInfo() {
   if (modalStatus.newPart){
     modalWindow = <NewPartModal 
       textTitle="Editar pieza"
+      partId={selectedPartId}
       partInfo={partInfo}
+      partDimentions={partDimentions}
       successFn={successNotify}
+      update={true}
     />
   } else if (modalStatus.requestMaterial){
     modalWindow = <RequestMaterialModal

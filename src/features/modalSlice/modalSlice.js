@@ -29,6 +29,7 @@ let initialState = {
     updateInspectionSettings: false,
     newMachine: false,
     editMachineInfo: false,
+    userInfo: false,
 };
 
 export const modalSlice = createSlice({

@@ -214,6 +214,32 @@ export const projectListSlice = createSlice({
         projectInfo.totalPartUnits = newTotalUnits
       }
     },
+    updatePartId: (state, action) => {
+      const ot = action.payload.ot
+      const currentPartId = action.payload.currentPartId
+      const newPartId = action.payload.newPartId
+
+      const selectedPart = state.find(project => project.ot === ot).parts
+        .find(part => part.id === currentPartId)
+
+      if (selectedPart){
+        selectedPart.id = newPartId
+      }
+    },
+    editPart: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const partInfo = {...action.payload.partInfo}
+      const partDimentions = {...action.payload.partDimentions}
+
+      const selectedPart = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId)
+
+      if (selectedPart){
+        selectedPart.partInfo = partInfo
+        selectedPart.dimentions = partDimentions
+      }
+    },
     deletePart: (state, action) => {
       const ot = action.payload.ot
       const partId = action.payload.partId
@@ -351,6 +377,8 @@ export const {
   // Part actions
   addNewPart,
   updatePartsQuantity,
+  updatePartId,
+  editPart,
   deletePart,
 
   // Process actions

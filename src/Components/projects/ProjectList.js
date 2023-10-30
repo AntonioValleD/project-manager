@@ -203,7 +203,7 @@ function ProjectList() {
     },
     table: {
       style: {
-        height: `${parseInt(windowResolution.height - 145)}px`
+        height: `${parseInt(windowResolution.height - 152)}px`
       }
     },
   }

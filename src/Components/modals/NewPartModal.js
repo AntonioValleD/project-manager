@@ -1,8 +1,23 @@
+// CSS documents
 import "animate.css"
+
+// Redux toolkit hooks
 import { useSelector, useDispatch } from "react-redux"
-import { useState, useRef, useEffect } from "react"
+
+// Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { addNewPart, updatePartsQuantity } from "../../features/projects/projectListSlice"
+import { 
+  addNewPart, 
+  updatePartsQuantity, 
+  updatePartId, 
+  editPart
+} from "../../features/projects/projectListSlice"
+import { openPart } from "../../features/appIndexSlice/appIndexStatusSlice"
+
+// React hooks
+import { useState, useRef, useEffect } from "react"
+
+// Components
 import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import AlertInfoModal from "./AlertInfoModal"
@@ -87,7 +102,11 @@ function NewPartModal(props) {
   const findPartById = (id) => {
     let foundPart = partList.find(part => part.id === id)
     if(foundPart){
-      return true
+      if (props.update && foundPart.id === props.partId){
+        return false
+      } else {
+        return true
+      }
     } else {
       return false
     }
@@ -200,7 +219,7 @@ function NewPartModal(props) {
       return
     } else {
       if (props.update){
-        console.log(newPartInfo)
+        updatePart()
       } else {
         addPart()
       }
@@ -237,30 +256,31 @@ function NewPartModal(props) {
 
 
   // Update part info function
-  // const updatePart = () => {
-  //   let totalParts = 0
-  //   partList.forEach((part) => {
-  //       totalParts += parseInt(part.quantity)
-  //   })
-  //   totalParts += parseInt(newPart.quantity)
-  //   totalParts -= parseInt(props.partInfo.quantity)
-  //   dispatch(editProject({
-  //     ot: selectedOt,
-  //     project: {
-  //       partsQuantity: totalParts.toString()
-  //     }
-  //   }))
-  //   dispatch(updatePartInfo({
-  //     ot: selectedOt,
-  //     newPart: newPart,
-  //   }))
+  const updatePart = () => {
+    dispatch(editPart({
+      ot: selectedOt,
+      partId: props.partId,
+      partInfo: newPartInfo,
+      partDimentions: newPartDimentions,
+    }))
 
-  //   props.successFn("La información se actualizó correctamente!")
-  //   dispatch(changeModalStatus({
-  //     modalName: "newPart",
-  //     modalStatus: false,
-  //   }))
-  // }
+    if (props.partId !== newPartId){
+      dispatch(updatePartId({
+        ot: selectedOt,
+        currentPartId: props.partId,
+        newPartId: newPartId
+      }))
+
+      dispatch(openPart({
+        ot: selectedOt,
+        partId: newPartId
+      }))
+    }
+
+    props.successFn("Información actualizada")
+
+    closeWindow()
+  }
 
 
   // Error modal controller
@@ -274,22 +294,15 @@ function NewPartModal(props) {
 
 
   // Edit project info controller
-  // useEffect(() => {
-  //   if (props.partInfo){
-  //     setNewPart({
-  //       selected: false,
-  //       id: props.partInfo.id,
-  //       partName: props.partInfo.partName,
-  //       material: props.partInfo.material,
-  //       quantity: props.partInfo.quantity,
-  //       assembly: props.partInfo.assembly,
-  //       type: props.partInfo.type,
-  //       dimentionUnits: props.partInfo.dimentionUnits,
-  //       generalDimentions: props.partInfo.generalDimentions,
-  //       materialDimentions: props.partInfo.materialDimentions,
-  //     })
-  //   }
-  // },[props.partInfo])
+  useEffect(() => {
+    if (props.update){
+      setNewPartId(props.partId)
+
+      setNewPartInfo(props.partInfo)
+
+      setNewPartDimentions(props.partDimentions)
+    }
+  },[])
 
 
   return (
