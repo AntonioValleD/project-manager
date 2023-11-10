@@ -20,7 +20,7 @@ import SeacrhBar from "../projects/SearchBar"
 import RedButton from "../assets/buttons/RedButton"
 import BlueButton from "../assets/buttons/BlueButton"
 import WarehouseConfirmationModal from "../modals/WarehouseConfirmationModal"
-
+import NoDataComponent from "../project_info/NoDataComponent"
 
 
 function MaterialRequestList(props) {
@@ -151,7 +151,9 @@ function MaterialRequestList(props) {
     {
       name: "Fecha de compra",
       selector: (row) => {
-        if (row.warehouseRequestDate !== ''){
+        if (row.status === "Cancelado"){
+          return "N/A"
+        } else if (row.warehouseRequestDate !== ''){
           return DateTime.fromISO(row.warehouseRequestDate).toLocaleString(DateTime.DATETIME_MED);
         } else {
           return "Pendiente"
@@ -164,7 +166,9 @@ function MaterialRequestList(props) {
     {
       name: "Fecha de llegada",
       selector: (row) => {
-        if (row.warehouseArrivalDate !== ''){
+        if (row.status === "Cancelado"){
+          return "N/A"
+        } else if (row.warehouseArrivalDate !== ''){
           return DateTime.fromISO(row.warehouseArrivalDate).toLocaleString(DateTime.DATETIME_MED);
         } else {
           return "Pendiente";
@@ -177,7 +181,9 @@ function MaterialRequestList(props) {
     {
       name: "Fecha de entrega",
       selector: (row) => {
-        if (row.userDeliveryDate !== ''){
+        if (row.status === "Cancelado"){
+          return "N/A"
+        } else if (row.userDeliveryDate !== ''){
           return DateTime.fromISO(row.userDeliveryDate).toLocaleString(DateTime.DATETIME_MED);
         } else {
           return "Pendiente";
@@ -219,7 +225,9 @@ function MaterialRequestList(props) {
     },
     table: {
       style: {
-        height: `${parseInt(windowResolution.height - 145)}px`
+        height: `${materialRequestList.length === 0 ? 
+          parseInt(windowResolution.height - 100) : 
+          parseInt(windowResolution.height - 155)}px`
       }
     },
   }
@@ -309,7 +317,7 @@ function MaterialRequestList(props) {
       toast.error("La solicitud ha sido cancelada")
 
     } else if (requestStatus !== "Comprado"){
-      toast.error("El material ya ha sido habilitado ó aún no ha sido comprado")
+      toast.error("El material no se ha comprado ó ya ha sido habilitado")
 
     } else {
       setConfirmationInfo({
@@ -529,6 +537,9 @@ function MaterialRequestList(props) {
           pagination
           paginationComponentOptions={paginationComponentOptions}
           paginationPerPage={15}
+          noDataComponent={<NoDataComponent
+            textInfo="No se ha solicitado material para este proyecto"
+          />}
         />
       </div>
       {modalWindow}

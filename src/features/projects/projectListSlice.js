@@ -249,6 +249,18 @@ export const projectListSlice = createSlice({
         partList.splice(partList.indexOf(partList.find(part => part.id === partId)))
       }
     },
+    changePartLocation: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const partLocation = action.payload.partLocation
+
+      const partInfo = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).partInfo
+
+      if (partInfo){
+        partInfo.location = partLocation
+      }
+    },
 
 
     // Process path actions
@@ -304,6 +316,21 @@ export const projectListSlice = createSlice({
         })
       }
     },
+    setProcessStatus: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const processIndex = action.payload.processIndex
+      const processStatus = action.payload.processStatus
+
+      const selectedProcess = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).processPath.processList
+        .find(process => process.index === processIndex)
+
+      if (selectedProcess){
+        selectedProcess.status = processStatus
+      }
+    },
+
 
     // Material request
     changeMaterialRequestStatus: (state, action) => {
@@ -380,10 +407,12 @@ export const {
   updatePartId,
   editPart,
   deletePart,
+  changePartLocation,
 
   // Process actions
   addNewPartProcess,
   deletePartProcess,
+  setProcessStatus,
 
   // Material request actions
   changeMaterialRequestStatus,

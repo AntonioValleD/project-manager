@@ -6,7 +6,6 @@ import { useState } from "react"
 
 // Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { setRequestDate, cancelMaterialRequest, changePartLocation } from "../../features/projects/projectListSlice"
 
 // Components
 import GreenButton from "../assets/buttons/GreenButton"
@@ -21,48 +20,15 @@ function WarehouseConfirmationModal(props) {
   // Local component state
   const [closeBtn, setCloseBtn] = useState(false)
 
-
-  /* Funtions */
-  const acceptFn = () => {
-    if (props.requestDate !== "cancelRequest"){
-      dispatch(setRequestDate({
-        ot: props.ot,
-        partId: props.partId,
-        requestId: props.requestId,
-        requestDate: props.requestDate,
-        requestStatus: props.requestStatus,
-      }))
-    } else {
-      dispatch(cancelMaterialRequest({
-        ot: props.ot,
-        partId: props.partId,
-        requestId: props.requestId,
-      }))
-    }
-
-    // Change part location to "almacen" when matrial is enabled
-    if (props.requestDate === "warehouseArrivalDate"){
-      dispatch(changePartLocation({
-        ot: props.ot,
-        partId: props.partId,
-        partLocation: "Almacén"
-      }))
-    }
-
-    props.successFn(props.successMessage)
-
-    closeWindow()
-  }
-
   const closeModal = () => {
     if (closeBtn){
       dispatch(changeModalStatus({
-        modalName: "warehouseConfirmation",
+        modalName: props.modalName,
         modalStatus: false
       }))
     }
   }
-
+ 
   const closeWindow = () => {
     setCloseBtn(true)
   }
@@ -93,13 +59,17 @@ function WarehouseConfirmationModal(props) {
         <div className="flex justify-center gap-x-4 mt-3">
           <GreenButton
             btnText="Aceptar"
-            btnAction={acceptFn}
+            btnAction={props.acceptFn}
+            closeModal={closeWindow}
           />
-          <RedButton btnText="Cerrar" btnAction={closeWindow} />
+          <RedButton 
+            btnText="Cerrar" 
+            btnAction={closeWindow}
+          />
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default WarehouseConfirmationModal;
+export default WarehouseConfirmationModal

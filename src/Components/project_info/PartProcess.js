@@ -4,7 +4,10 @@ import { useSelector, useDispatch } from "react-redux"
 // Redux reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { changePartAction } from "../../features/appIndexSlice/appIndexStatusSlice"
-import { deletePartProcess } from "../../features/projects/projectListSlice"
+import { 
+  deletePartProcess,
+  setProcessStatus
+} from "../../features/projects/projectListSlice"
 
 // React hooks
 import { useState } from "react"
@@ -12,6 +15,7 @@ import { useState } from "react"
 // React icons import
 import { AiFillEdit } from "react-icons/ai"
 import { AiFillDelete } from "react-icons/ai"
+import { BsFillPlayFill } from "react-icons/bs"
 
 // Components
 import { DateTime } from "luxon"
@@ -19,6 +23,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import rightArrowImg from '../assets/img/Flecha-w.webp'
 import RedButton from "../assets/buttons/RedButton"
 import AddPartProcess from "../modals/AddPartProcess"
+import ConfirmationModal from "../modals/ConfirmationModal"
 
 
 function PartProcess() {
@@ -30,6 +35,8 @@ function PartProcess() {
   const [hoverProcessIndex, setHoverProcessIndex] = useState("")
 
   const [processToUpdate, setProcessToUpdate] = useState({})
+
+  const [confirmationInfo, setConfirmationInfo] = useState({})
 
 
   // Reducer state
@@ -51,6 +58,8 @@ function PartProcess() {
     }))
   }
 
+
+  // Add new process
   const addProcess = () => {
     dispatch(changeModalStatus({
       modalName: "newProcess",
@@ -58,6 +67,8 @@ function PartProcess() {
     }))
   }
 
+
+  // Edit selected process
   const editProcess = (index) => {
     setHoverProcessIndex(index)
 
@@ -71,6 +82,8 @@ function PartProcess() {
     }))
   }
 
+
+  // Delete selected process
   const deleteProcess = (processIndex) => {
     let currentProcess = processPath.processList.find(process => process.status === "En proceso")
 
@@ -86,6 +99,32 @@ function PartProcess() {
       }))
       toast.success("El proceso se eliminó correctamente")
     }
+  }
+
+
+  // Start selected process
+  const setStartProcess = (selectedIndex) => {
+    setConfirmationInfo({
+      processIndex: selectedIndex,
+      textTitle: "Iniciar proceso",
+      textDescription: `¿Esta seguro de iniciar el proceso "${
+        processPath.processList.find(process => process.index === selectedIndex).name
+      }"?`
+    })
+
+    dispatch(changeModalStatus({
+      modalName: "startSelectedProcess",
+      modalStatus: true
+    }))
+  }
+
+  const startSelectedProcess = () => {
+    dispatch(setProcessStatus({
+      ot: appIndex.ot,
+      partId: selectedPartId,
+      processIndex: confirmationInfo.processIndex,
+      processStatus: "En proceso"
+    }))
   }
 
 
@@ -142,6 +181,7 @@ function PartProcess() {
       ot={appIndex.ot}
       partId={selectedPartId}
     />
+
   } else if (modalStatus.editProcess){
     modalWindow = <AddPartProcess
       textTitle="Editar proceso"
@@ -152,6 +192,15 @@ function PartProcess() {
       partId={selectedPartId}
       update={true}
       processInfo={processToUpdate}
+    />
+
+  } else if (modalStatus.startSelectedProcess){
+    modalWindow = <ConfirmationModal
+      processIndex={confirmationInfo.processIndex}
+      textTitle={confirmationInfo.textTitle}
+      textDescription={confirmationInfo.textDescription}
+      acceptFn={startSelectedProcess}
+      modalName="startSelectedProcess"
     />
   }
 
@@ -181,7 +230,7 @@ function PartProcess() {
         +
       </button>
 
-      <div className="absolute left-1 top-10">
+      <div className="absolute left-1 top-10 mt-1">
         <RedButton
           btnText="Regresar"
           btnAction={closePartProcess}
@@ -228,14 +277,21 @@ function PartProcess() {
                       className="flex gap-x-1"
                     >
                       <label
-                        title="Editar información de máquina"
+                        title="Iniciar proceso"
+                        className="hover:text-green-300 cursor-pointer"
+                        onClick={() => setStartProcess(process.index)}
+                      >
+                        <BsFillPlayFill/>
+                      </label>
+                      <label
+                        title="Editar proceso"
                         className="hover:text-yellow-300 cursor-pointer"
                         onClick={() => editProcess(process.index)}
                       >
                         <AiFillEdit/>
                       </label>
                       <label
-                        title="Eliminar máquina"
+                        title="Eliminar proceso"
                         className="hover:text-red-400 cursor-pointer"
                         onClick={() => deleteProcess(process.index)}
                       >

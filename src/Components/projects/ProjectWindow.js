@@ -37,7 +37,7 @@ function ProjectWindow() {
   return (
     <div className="">
       <div
-        className="absolute top-1 left-20 h-8 flex items-center"
+        className="absolute top-1 left-20 h-10 flex items-center"
       >
         <TabNav
           text="O.T."

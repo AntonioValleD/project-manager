@@ -362,7 +362,7 @@ function ProjectList() {
       <Toaster
         toastOptions={{
           position: "top-center",
-          duration: 3000,
+          duration: 2000,
           style: {
             background: '#363636',
             color: '#fff',

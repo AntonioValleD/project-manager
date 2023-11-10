@@ -30,7 +30,8 @@ let initialState = {
     newMachine: false,
     editMachineInfo: false,
     userInfo: false,
-};
+    startSelectedProcess: false,
+}
 
 export const modalSlice = createSlice({
     name: 'modalSlice',
@@ -39,10 +40,10 @@ export const modalSlice = createSlice({
         changeModalStatus: (state, action) => {
             let modalName = action.payload.modalName;
             let modalStatus = action.payload.modalStatus
-            state[modalName] = modalStatus;
+            state[modalName] = modalStatus
         },
     }
-});
+})
 
 export const { changeModalStatus } = modalSlice.actions;
 export default modalSlice.reducer;

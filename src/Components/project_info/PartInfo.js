@@ -367,7 +367,7 @@ function PartInfo() {
           aria-label="No se encontro el plano"
           type="application/pdf"
           data={planoPdf}
-          style={{ height: "93vh", width: "60vw" }}
+          style={{ height: "92vh", width: "60vw" }}
         />
       </div>
     </div>

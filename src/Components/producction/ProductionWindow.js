@@ -37,7 +37,7 @@ function ProductionWindow() {
 
   return (
     <div className="">
-      <div className="absolute top-1 h-8 left-20 flex items-center">
+      <div className="absolute top-1 h-10 left-20 flex items-center">
         <TabNav
           showTab={showTab}
           closeTab={closeTab}

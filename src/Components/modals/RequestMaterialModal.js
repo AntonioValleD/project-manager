@@ -5,7 +5,8 @@ import { useSelector, useDispatch } from "react-redux"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { 
   changeMaterialRequestStatus, 
-  addMaterialRequest 
+  addMaterialRequest,
+  changePartLocation
 } from "../../features/projects/projectListSlice"
 
 // React hooks
@@ -144,7 +145,7 @@ function RequestMaterialModal(props) {
   const addNewMaterialRequest = () => {
     let materialRequestConstructor = {
       id: uuidv4(),
-      userName: userInfo.name,
+      userName: `${userInfo.name} ${userInfo.lastName}`,
       status: "Solicitado",
       userRequestDate: DateTime.local().toString(),
       warehouseRequestDate: "",
