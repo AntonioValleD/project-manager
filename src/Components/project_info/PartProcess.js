@@ -6,7 +6,8 @@ import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { changePartAction } from "../../features/appIndexSlice/appIndexStatusSlice"
 import { 
   deletePartProcess,
-  setProcessStatus
+  setProcessStatus,
+  setProcessDate
 } from "../../features/projects/projectListSlice"
 
 // React hooks
@@ -16,6 +17,7 @@ import { useState } from "react"
 import { AiFillEdit } from "react-icons/ai"
 import { AiFillDelete } from "react-icons/ai"
 import { BsFillPlayFill } from "react-icons/bs"
+import { IoMdCheckboxOutline } from "react-icons/io"
 
 // Components
 import { DateTime } from "luxon"
@@ -48,6 +50,7 @@ function PartProcess() {
 
   const processPath = selectedProject.parts.find(part => part.id === selectedPartId).processPath
 
+  const currentProcess = processPath.processList.find(process => process.status === "En proceso")
 
 
   // Button functions
@@ -102,29 +105,82 @@ function PartProcess() {
   }
 
 
+  // Set confirmation modal window status
+  const setConfirmationModal = (status) => {
+    dispatch(changeModalStatus({
+      modalName: "confirmationModal",
+      modalStatus: status
+    }))
+  }
+
+
   // Start selected process
   const setStartProcess = (selectedIndex) => {
     setConfirmationInfo({
       processIndex: selectedIndex,
       textTitle: "Iniciar proceso",
-      textDescription: `¿Esta seguro de iniciar el proceso "${
+      textDescription: `¿Está seguro de iniciar el proceso "${
         processPath.processList.find(process => process.index === selectedIndex).name
-      }"?`
+      }"?`,
+      acceptFn: startSelectedProcess,
     })
 
-    dispatch(changeModalStatus({
-      modalName: "startSelectedProcess",
-      modalStatus: true
-    }))
+    setConfirmationModal(true)
   }
 
-  const startSelectedProcess = () => {
+  const startSelectedProcess = (confirmationIndex) => {
     dispatch(setProcessStatus({
       ot: appIndex.ot,
       partId: selectedPartId,
-      processIndex: confirmationInfo.processIndex,
+      processIndex: confirmationIndex,
       processStatus: "En proceso"
     }))
+
+    dispatch(setProcessDate({
+      ot: appIndex.ot,
+      partId: selectedPartId,
+      processIndex: confirmationIndex,
+      processDate: "startDate"
+    }))
+
+    //setConfirmationInfo({})
+
+    toast.success("El proceso se ha iniciado")
+  }
+
+
+  // Finish selected process
+  const setFinishProcess = (selectedIndex) => {
+    setConfirmationInfo({
+      processIndex: selectedIndex,
+      textTitle: "Finalizar proceso",
+      textDescription: `¿Está seguro de finalizar el proceso "${
+        processPath.processList.find(process => process.index === selectedIndex).name
+      }"?`,
+      acceptFn: finishSelectedProcess
+    })
+
+    setConfirmationModal(true)
+  }
+
+  const finishSelectedProcess = (confirmationIndex) => {
+    dispatch(setProcessStatus({
+      ot: appIndex.ot,
+      partId: selectedPartId,
+      processIndex: confirmationIndex,
+      processStatus: "Finalizado"
+    }))
+
+    dispatch(setProcessDate({
+      ot: appIndex.ot,
+      partId: selectedPartId,
+      processIndex: confirmationIndex,
+      processDate: "finishDate"
+    }))
+
+    //setConfirmationInfo({})
+
+    toast.success("El proceso se ha finalizado")
   }
 
 
@@ -158,13 +214,25 @@ function PartProcess() {
 
   // Obtain current process index
   const currentProcessIndex = () => {
-    const currentProcess = processPath.processList.find(process => process.status === "En proceso")
-
     if (currentProcess){
       return currentProcess.index
     } else {
       return -1
     }
+  }
+
+
+  // Obtain current process index
+  const lastFinishedProcessIndex = () => {
+    let index = -1
+
+    processPath.processList.forEach((process) => {
+      if (process.status === "Finalizado"){
+        index ++
+      }
+    })
+
+    return index
   }
 
 
@@ -178,6 +246,7 @@ function PartProcess() {
       successFn={successFn}
       newProcessIndex={processPath.processList.length - 1}
       currentProcessIndex={currentProcessIndex()}
+      lastFinishedProcessIndex={lastFinishedProcessIndex()}
       ot={appIndex.ot}
       partId={selectedPartId}
     />
@@ -188,19 +257,19 @@ function PartProcess() {
       successFn={successFn}
       newProcessIndex={processPath.processList.length - 2}
       currentProcessIndex={currentProcessIndex()}
+      lastFinishedProcessIndex={lastFinishedProcessIndex()}
       ot={appIndex.ot}
       partId={selectedPartId}
       update={true}
       processInfo={processToUpdate}
     />
 
-  } else if (modalStatus.startSelectedProcess){
+  } else if (modalStatus.confirmationModal){
     modalWindow = <ConfirmationModal
       processIndex={confirmationInfo.processIndex}
       textTitle={confirmationInfo.textTitle}
       textDescription={confirmationInfo.textDescription}
-      acceptFn={startSelectedProcess}
-      modalName="startSelectedProcess"
+      acceptFn={confirmationInfo.acceptFn}
     />
   }
 
@@ -260,7 +329,7 @@ function PartProcess() {
 
             <div 
               className={`flex flex-col ${process.status === "Pendiente" ? 'bg-gray-700 hover:bg-gray-600' : process.status === "En proceso" ? 'bg-green-700 hover:bg-green-600' : process.status === 'Finalizado' ? 'bg-purple-800 hover:bg-purple-700': 'bg-gray-700 hover:bg-gray-600'} gap-y-1 p-2 rounded text-white`}
-              style={{maxWidth: "260px"}}
+              style={{maxWidth: "260px", minWidth: "190px"}}
               onMouseEnter={() => setHoverProcessIndex(process.index)}
               onMouseLeave={() => setHoverProcessIndex("")}
             >
@@ -276,27 +345,64 @@ function PartProcess() {
                     <div
                       className="flex gap-x-1"
                     >
-                      <label
-                        title="Iniciar proceso"
-                        className="hover:text-green-300 cursor-pointer"
-                        onClick={() => setStartProcess(process.index)}
-                      >
-                        <BsFillPlayFill/>
-                      </label>
-                      <label
-                        title="Editar proceso"
-                        className="hover:text-yellow-300 cursor-pointer"
-                        onClick={() => editProcess(process.index)}
-                      >
-                        <AiFillEdit/>
-                      </label>
-                      <label
-                        title="Eliminar proceso"
-                        className="hover:text-red-400 cursor-pointer"
-                        onClick={() => deleteProcess(process.index)}
-                      >
-                        <AiFillDelete/>
-                      </label>
+                      {
+                        currentProcessIndex() === process.index ?
+                        <label
+                          title="Finalizar proceso"
+                          className="hover:text-green-300 cursor-pointer"
+                          onClick={() => setFinishProcess(process.index)}
+                        >
+                          <IoMdCheckboxOutline/>
+                        </label> : lastFinishedProcessIndex() < process.index ?
+                        <>
+                          {
+                            currentProcessIndex() < process.index - 1 ?
+                            <label
+                              title="Iniciar proceso"
+                              className="hover:text-green-300 cursor-pointer"
+                              onClick={() => setStartProcess(process.index)}
+                            >
+                              <BsFillPlayFill/>
+                            </label> :
+                            ""
+                          }
+                        </> :
+                        ""
+                      }
+                      {
+                        lastFinishedProcessIndex() < process.index ?
+                        <>
+                          {
+                            currentProcessIndex() < process.index ?
+                            <label
+                              title="Editar proceso"
+                              className="hover:text-yellow-300 cursor-pointer"
+                              onClick={() => editProcess(process.index)}
+                            > 
+                              <AiFillEdit/>
+                            </label> :
+                            ""
+                          }
+                        </> :
+                        ""
+                      }
+                      {
+                        lastFinishedProcessIndex() < process.index ?
+                        <>
+                          {
+                            currentProcessIndex() < process.index ?
+                            <label
+                              title="Eliminar proceso"
+                              className="hover:text-red-400 cursor-pointer"
+                              onClick={() => deleteProcess(process.index)}
+                            >
+                              <AiFillDelete/>
+                            </label> :
+                            ""
+                          }
+                        </> :
+                        ""
+                      }
                     </div> :
                     ""
                   }

@@ -101,7 +101,7 @@ function ProjectInfo() {
 
 
   return (
-    <div className="w-5/12 text-center text-white mt-2 ml-1">
+    <div className="w-5/12 text-center text-white ml-1 mt-1">
       {modalWindow}
 
       <Toaster

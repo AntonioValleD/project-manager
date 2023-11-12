@@ -30,7 +30,7 @@ let initialState = {
     newMachine: false,
     editMachineInfo: false,
     userInfo: false,
-    startSelectedProcess: false,
+    confirmationModal: false,
 }
 
 export const modalSlice = createSlice({

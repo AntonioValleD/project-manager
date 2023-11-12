@@ -54,7 +54,11 @@ function PartInfo() {
   // Process finder
   const previousProcess = () => {
     if (currentProcess){
-      return processList[currentProcess.index - 1].name
+      if (currentProcess.index === 0){
+        return "N/A"
+      } else {
+        return processList[currentProcess.index - 1].name
+      }
     } else {
       return "N/A"
     }
@@ -354,7 +358,7 @@ function PartInfo() {
             />
           </div>
 
-          <div className="flex justify-end pt-3">
+          <div className="flex justify-end pt-2">
             <RedButton
               btnText="Regresar"
               btnAction={closeSelectedPart}

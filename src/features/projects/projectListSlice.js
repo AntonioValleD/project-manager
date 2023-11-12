@@ -330,6 +330,20 @@ export const projectListSlice = createSlice({
         selectedProcess.status = processStatus
       }
     },
+    setProcessDate: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const processIndex = action.payload.processIndex
+      const processDate = action.payload.processDate
+
+      const selectedProcess = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).processPath.processList
+        .find(process => process.index === processIndex)
+
+      if (selectedProcess){
+        selectedProcess[processDate] = DateTime.local().toString()
+      }
+    },
 
 
     // Material request
@@ -413,6 +427,7 @@ export const {
   addNewPartProcess,
   deletePartProcess,
   setProcessStatus,
+  setProcessDate,
 
   // Material request actions
   changeMaterialRequestStatus,

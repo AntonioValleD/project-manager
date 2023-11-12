@@ -23,7 +23,7 @@ function WarehouseConfirmationModal(props) {
   const closeModal = () => {
     if (closeBtn){
       dispatch(changeModalStatus({
-        modalName: props.modalName,
+        modalName: "confirmationModal",
         modalStatus: false
       }))
     }
@@ -31,6 +31,16 @@ function WarehouseConfirmationModal(props) {
  
   const closeWindow = () => {
     setCloseBtn(true)
+  }
+
+
+  // Accept function
+  const acceptFunction = () => {
+    if (props.acceptFn){
+      props.acceptFn(props.processIndex)
+    }
+
+    closeWindow()
   }
 
 
@@ -59,8 +69,7 @@ function WarehouseConfirmationModal(props) {
         <div className="flex justify-center gap-x-4 mt-3">
           <GreenButton
             btnText="Aceptar"
-            btnAction={props.acceptFn}
-            closeModal={closeWindow}
+            btnAction={acceptFunction}
           />
           <RedButton 
             btnText="Cerrar" 

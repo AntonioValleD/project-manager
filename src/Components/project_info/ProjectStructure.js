@@ -3,7 +3,7 @@ import PartsTable from "./PartsTable";
 
 function ProjectStructure() {
   return (
-    <div className="flex gap-x-4 mt-2">
+    <div className="flex gap-x-4 mt-1">
       <ProjectInfo/>
       <PartsTable/>
     </div>

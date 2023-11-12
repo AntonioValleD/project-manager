@@ -184,10 +184,16 @@ function AddPartProcess(props) {
   const indexArray = () => {
     let indexArray = []
 
-    for (let i = props.currentProcessIndex; i <= props.newProcessIndex; i ++){
-      indexArray.push(`${i + 2}`)
+    if (props.currentProcessIndex === -1){
+      for (let i = props.lastFinishedProcessIndex; i <= props.newProcessIndex; i ++){
+        indexArray.push(`${i + 2}`)
+      }
+    } else {
+      for (let i = props.currentProcessIndex; i <= props.newProcessIndex; i ++){
+        indexArray.push(`${i + 2}`)
+      }
     }
-  
+ 
     return indexArray.reverse()
   }
 
