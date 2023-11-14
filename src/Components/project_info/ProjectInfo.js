@@ -101,7 +101,10 @@ function ProjectInfo() {
 
 
   return (
-    <div className="w-5/12 text-center text-white ml-1 mt-1">
+    <div 
+      className="text-center text-white ml-px mt-1"
+      style={{width: "37vw"}}
+    >
       {modalWindow}
 
       <Toaster
@@ -123,7 +126,11 @@ function ProjectInfo() {
       <div className="flex flex-col w-full mb-1">
         <label>Proyecto</label>
 
-        <label className="overflow-x-auto bg-white text-black font-semibold rounded-sm">
+        <label
+          className="overflow-x-auto bg-white text-black font-semibold rounded-sm
+            whitespace-nowrap text-ellipsis overflow-hidden px-2"
+          title={selectedProjectInfo.name}
+        >
           {selectedProjectInfo.name}
         </label>
       </div>

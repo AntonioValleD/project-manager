@@ -6,6 +6,7 @@ import SeacrhBar from "./SearchBar"
 import NewDeleteButton from "../assets/buttons/NewDelete"
 import NewProjectModal from "../modals/NewProjectModal"
 import DeleteProjectModal from "../modals/DeleteProjectModal"
+import NoDataComponent from "../project_info/NoDataComponent"
 
 // Hook import
 import { useSelector, useDispatch } from "react-redux"
@@ -30,6 +31,8 @@ function ProjectList() {
 
   // React state
   const [filteredProjects, filterProjects] = useState(projectList)
+
+  const [filteringStatus, setFilteringStatus] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState("")
 
@@ -203,7 +206,14 @@ function ProjectList() {
     },
     table: {
       style: {
-        height: `${parseInt(windowResolution.height - 152)}px`
+        height: `${projectList.length === 0 ?
+            parseInt(windowResolution.height - 100) :
+          filteringStatus ?
+            `${filteredProjects.length === 0 ?
+              parseInt(windowResolution.height - 100) :
+              parseInt(windowResolution.height - 152)
+            }` :
+          parseInt(windowResolution.height - 152)}px`
       }
     },
   }
@@ -257,7 +267,13 @@ function ProjectList() {
 
 
   const searchInput = (input) => {
-    let inputValue = input.value.toLowerCase();
+    if (input.value.length < 2){
+      setFilteringStatus(false)
+    } else {
+      setFilteringStatus(true)
+    }
+
+    let inputValue = input.value.toLowerCase()
     let search = projectList.filter((project) => {
       if (project.ot.includes(inputValue) || 
         project.projectInfo.microsipOt.includes(inputValue) || 
@@ -283,9 +299,13 @@ function ProjectList() {
 
   const deleteBtn = () => {
     if (selectedProject === ""){
-      dispatch(changeModalStatus({modalName: 'noProjectSelected', modalStatus: true}))
+      toast.error("No se ha seleccionado ningún proyecto")
+
     } else {
-      dispatch(changeModalStatus({modalName: 'delete', modalStatus: true}))
+      dispatch(changeModalStatus({
+        modalName: 'deleteProject',
+        modalStatus: true
+      }))
     }
   }
 
@@ -298,16 +318,11 @@ function ProjectList() {
   // Modal window selector
   const modalStatus = useSelector(state => state.modalStatus)
   let modalWindow
-  if (modalStatus.delete){
+  if (modalStatus.deleteProject){
     modalWindow = <DeleteProjectModal
+      ot={selectedProject}
       successFn={successNotify}
     />
-  } else if (modalStatus.noProjectSelected){
-    toast.success("Esta es una nueva notificación!");
-    dispatch(changeModalStatus({
-      modalName: "noProjectSelected",
-      modalStatus: false,
-    }))
   } else if (modalStatus.newProject) {
     modalWindow = <NewProjectModal
       textTitle="Nuevo proyecto"
@@ -354,6 +369,7 @@ function ProjectList() {
           pagination
           paginationComponentOptions={paginationComponentOptions}
           paginationPerPage={15}
+          noDataComponent={<NoDataComponent/>}
         />
       </div>
 

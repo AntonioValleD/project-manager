@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 let initialState = {
     newProject: false,
-    delete: false,
+    deleteProject: false,
     noProjectSelected: false,
     projectAlreadyExists: false,
     deletePart: false,

@@ -7,7 +7,8 @@ import { changePartAction } from "../../features/appIndexSlice/appIndexStatusSli
 import { 
   deletePartProcess,
   setProcessStatus,
-  setProcessDate
+  setProcessDate,
+  changeProcessArrowStatus
 } from "../../features/projects/projectListSlice"
 
 // React hooks
@@ -18,6 +19,7 @@ import { AiFillEdit } from "react-icons/ai"
 import { AiFillDelete } from "react-icons/ai"
 import { BsFillPlayFill } from "react-icons/bs"
 import { IoMdCheckboxOutline } from "react-icons/io"
+import { PiArrowFatRightFill } from "react-icons/pi"
 
 // Components
 import { DateTime } from "luxon"
@@ -222,7 +224,7 @@ function PartProcess() {
   }
 
 
-  // Obtain current process index
+  // Obtain last finished process index
   const lastFinishedProcessIndex = () => {
     let index = -1
 
@@ -234,6 +236,37 @@ function PartProcess() {
 
     return index
   }
+
+
+  // Get previous process status
+  const nextProcessArrow = (processIndex) => {
+    let selectedProcess = processPath.processList.find(process => process.index === processIndex)
+    let previousProcess = processPath.processList.find(process => process.index === processIndex - 1)
+
+    if (selectedProcess.status === "Pendiente" && previousProcess.status === "Finalizado"){
+      return true
+    } else {
+      return false
+    }
+  }
+
+
+  // Change arrow status
+  const changeArrowStatus = (processIndex, arrowStatus) => {
+    dispatch(changeProcessArrowStatus({
+      ot: appIndex.ot,
+      partId: selectedPartId,
+      processIndex: processIndex,
+      arrowStatus: arrowStatus
+    }))
+
+    if (arrowStatus === "Solicitado"){
+      toast.success("El siguiente proceso ha sido solicitado")
+    } else if (arrowStatus === "Aprobado"){
+      toast.success("El siguiente proceso ha sido aprobado")
+    }
+  }
+
 
 
   // Modal window selector
@@ -293,7 +326,8 @@ function PartProcess() {
 
       <button
         title="Añadir proceso"
-        className="fixed bottom-10 right-10 flex items-center justify-center text-white text-3xl rounded-full bg-green-900 h-12 w-12 pb-1 hover:bg-green-700 cursor-pointer"
+        className="fixed bottom-10 right-10 flex items-center justify-center text-white
+          text-3xl rounded-full bg-green-900 h-12 w-12 pb-1 hover:bg-green-700 cursor-pointer"
         onClick={() => addProcess()}
       >
         +
@@ -311,7 +345,8 @@ function PartProcess() {
         style={{minHeight: "272px"}}
       >
         <label 
-          className="h-28 w-28 bg-purple-800 text-white text-xl rounded-full flex justify-center items-center"
+          className="h-28 w-28 bg-purple-800 text-white text-xl rounded-full flex justify-center
+            items-center"
         >
           Inicio
         </label>
@@ -321,14 +356,28 @@ function PartProcess() {
             key={process.index}
             className="flex justify-start items-center"
           >
-            <img
-              alt="arrow"
-              className="h-5"
-              src={rightArrowImg}
-            />
+            <label
+              className={`text-3xl px-px
+                ${process.arrowStatus === "Aprobado" ? 
+                  "text-purple-700" :
+                process.arrowStatus === "Solicitado" ? 
+                  "text-orange-500 cursor-pointer" : 
+                `text-white ${nextProcessArrow(process.index) ? 
+                  "cursor-pointer" : ""}`
+                }`}
+              onClick={() => process.arrowStatus === "Solicitado" ?
+              changeArrowStatus(process.index, "Aprobado") : nextProcessArrow(process.index) ?
+              changeArrowStatus(process.index, "Solicitado") : ""}
+            >
+              <PiArrowFatRightFill/>
+            </label>
 
             <div 
-              className={`flex flex-col ${process.status === "Pendiente" ? 'bg-gray-700 hover:bg-gray-600' : process.status === "En proceso" ? 'bg-green-700 hover:bg-green-600' : process.status === 'Finalizado' ? 'bg-purple-800 hover:bg-purple-700': 'bg-gray-700 hover:bg-gray-600'} gap-y-1 p-2 rounded text-white`}
+              className={`flex flex-col ${process.status === "Pendiente" ?
+                'bg-gray-700 hover:bg-gray-600' : process.status === "En proceso" ?
+                'bg-green-700 hover:bg-green-600' : process.status === 'Finalizado' ?
+                'bg-purple-800 hover:bg-purple-700': 'bg-gray-700 hover:bg-gray-600'}
+                gap-y-1 p-2 rounded text-white`}
               style={{maxWidth: "260px", minWidth: "190px"}}
               onMouseEnter={() => setHoverProcessIndex(process.index)}
               onMouseLeave={() => setHoverProcessIndex("")}
@@ -357,14 +406,19 @@ function PartProcess() {
                         <>
                           {
                             currentProcessIndex() < process.index - 1 ?
-                            <label
-                              title="Iniciar proceso"
-                              className="hover:text-green-300 cursor-pointer"
-                              onClick={() => setStartProcess(process.index)}
-                            >
-                              <BsFillPlayFill/>
-                            </label> :
-                            ""
+                            <>
+                              {
+                                process.arrowStatus === "Aprobado" ?
+                                <label
+                                  title="Iniciar proceso"
+                                  className="hover:text-green-300 cursor-pointer"
+                                  onClick={() => setStartProcess(process.index)}
+                                >
+                                  <BsFillPlayFill/>
+                                </label> :
+                                ""
+                              }
+                            </> : ""
                           }
                         </> :
                         ""
@@ -408,7 +462,8 @@ function PartProcess() {
                   }
                 </label>
                 <label
-                  className="bg-gray-800/50 text-center px-3 rounded whitespace-nowrap text-ellipsis overflow-hidden"
+                  className="bg-gray-800/50 text-center px-3 rounded whitespace-nowrap
+                    text-ellipsis overflow-hidden"
                 >
                   {process.name}
                 </label>
@@ -490,11 +545,13 @@ function PartProcess() {
             </div>
           </div>
         ))}
-        <img
-          alt="arrow"
-          className="h-5"
-          src={rightArrowImg}
-        />
+
+        <label
+          className="text-white text-3xl px-px"
+        >
+          <PiArrowFatRightFill/>
+        </label>
+
         <label 
           className="h-28 w-28 bg-gray-700 text-white text-xl rounded-full flex justify-center items-center"
         >

@@ -2,6 +2,7 @@ import newImg from '../img/New-w.png';
 import deleteImg from '../img/Eliminar-w.png';
 
 function NewDeleteButton(props) {
+    
 
   return (
     <div className="flex h-full gap-2">

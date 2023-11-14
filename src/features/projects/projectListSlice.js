@@ -54,7 +54,8 @@ const initialState = [
                 minuts: 30,
               },
               finishDate: "2021-07-09T00:00:00.000Z",
-              status: "Finalizado"
+              status: "Finalizado",
+              arrowStatus: "Aprobado",
             },
             {
               index: 1,
@@ -67,7 +68,8 @@ const initialState = [
                 minuts: 30,
               },
               finishDate: "",
-              status: "En proceso"
+              status: "En proceso",
+              arrowStatus: "Aprobado",
             },
             {
               index: 2,
@@ -80,7 +82,8 @@ const initialState = [
                 minuts: 30,
               },
               finishDate: "",
-              status: "Pendiente"
+              status: "Pendiente",
+              arrowStatus: "Pendiente",
             }
           ]
         },
@@ -344,6 +347,20 @@ export const projectListSlice = createSlice({
         selectedProcess[processDate] = DateTime.local().toString()
       }
     },
+    changeProcessArrowStatus: (state, action) => {
+      const ot = action.payload.ot
+      const partId = action.payload.partId
+      const processIndex = action.payload.processIndex
+      const arrowStatus = action.payload.arrowStatus
+
+      const selectedProcess = state.find(project => project.ot === ot).parts
+        .find(part => part.id === partId).processPath.processList
+        .find(process => process.index === processIndex)
+
+      if (selectedProcess){
+        selectedProcess.arrowStatus = arrowStatus
+      }
+    },
 
 
     // Material request
@@ -428,6 +445,7 @@ export const {
   deletePartProcess,
   setProcessStatus,
   setProcessDate,
+  changeProcessArrowStatus,
 
   // Material request actions
   changeMaterialRequestStatus,
