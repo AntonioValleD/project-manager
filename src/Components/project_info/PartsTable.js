@@ -1,16 +1,26 @@
+// Redux toolkit hooks
 import { useSelector, useDispatch } from "react-redux"
-import { useState } from "react";
+
+// Redux toolkit reducers
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { updatePartsQuantity, deletePart } from "../../features/projects/projectListSlice"
+import { openPart } from "../../features/appIndexSlice/appIndexStatusSlice"
+
+// React hooks
+import { useState } from "react"
+
+// CSS documents
 import "bootstrap/dist/css/bootstrap.min.css"
+
+// Components
 import DataTable from "react-data-table-component"
 import NewDeleteButton from "../assets/buttons/NewDelete"
 import BlueButton from "../assets/buttons/BlueButton"
 import NoDataComponent from "./NoDataComponent"
 import NewPartModal from "../modals/NewPartModal"
 import DeletePartModal from "../modals/DeletePartModal"
-import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { updatePartsQuantity, deletePart } from "../../features/projects/projectListSlice"
-import { openPart, closePart } from "../../features/appIndexSlice/appIndexStatusSlice"
 import toast, { Toaster } from "react-hot-toast"
+
 
 function PartsTable() {
   // Hooks
@@ -18,8 +28,10 @@ function PartsTable() {
 
 
   // Redux state
-  const selectedOt = useSelector(state => state.projectTabs).find(project => project.selected === true).id
-  const selectedProject = useSelector((state) => state.projectList).find(project => project.ot === selectedOt)
+  const selectedOt = useSelector(state => state.projectTabs)
+    .find(project => project.selected === true).id
+  const selectedProject = useSelector((state) => state.projectList)
+    .find(project => project.ot === selectedOt)
   const partList = selectedProject.parts
 
 
@@ -48,6 +60,22 @@ function PartsTable() {
   })
 
 
+  // Material request status light
+  const getMaterialRequestStatus = (materialRequestList) => {
+    if (materialRequestList.length === 0){
+      return "Sin solicitar"
+    } else if (materialRequestList.find(materialRequest => materialRequest.status === "Solicitado")){
+      return "Solicitado"
+    } else if (materialRequestList.find(materialRequest => materialRequest.status === "Comprado")){
+      return "Comprado"
+    } else if (materialRequestList.find(materialRequest => materialRequest.status === "Habilitado")){
+      return "Habilitado"
+    } else if (materialRequestList.find(materialRequest => materialRequest.status === "Entregado")){
+      return "Entregado"
+    }
+  }
+
+
   const columns = [
     {
       name: "No.",
@@ -71,7 +99,7 @@ function PartsTable() {
       wrap: true,
       conditionalCellStyles: [
         {
-          when: row => row.materialRequest.status === "Sin solicitar",
+          when: row => getMaterialRequestStatus(row.materialRequest.requestList) === "Sin solicitar",
           style: {
             color: 'white',
             backgroundColor: 'red',
@@ -80,7 +108,16 @@ function PartsTable() {
           }
         },
         {
-          when: row => row.materialRequest.status === "Solicitado",
+          when: row => getMaterialRequestStatus(row.materialRequest.requestList) === "Solicitado",
+          style: {
+            color: 'black',
+            backgroundColor: 'orange',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.materialRequest.requestList) === "Comprado",
           style: {
             color: 'black',
             backgroundColor: 'yellow',
@@ -89,7 +126,16 @@ function PartsTable() {
           }
         },
         {
-          when: row => row.materialRequest.status === "Habilitado",
+          when: row => getMaterialRequestStatus(row.materialRequest.requestList) === "Habilitado",
+          style: {
+            color: 'white',
+            backgroundColor: 'blue',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.materialRequest.requestList) === "Entregado",
           style: {
             color: 'white',
             backgroundColor: 'green',
@@ -139,7 +185,7 @@ function PartsTable() {
       width: "16%",
       center: true
     },
-  ];
+  ]
 
   // Custom styles
   const customStyles = {
@@ -275,7 +321,7 @@ function PartsTable() {
       modalStatus: false,
     }))
   }
-  
+
 
   return (
     <div className="w-8/12">
@@ -340,7 +386,7 @@ function PartsTable() {
         }}
       />
     </div>
-  );
+  )
 }
 
 export default PartsTable;

@@ -49,6 +49,8 @@ function MaterialRequestList(props) {
 
   const [filteredRequestList, filterRequestList] = useState(materialRequestList)
 
+  const [filteringStatus, setFilteringStatus] = useState(false)
+
   const [windowResolution, setWindowResolution] = useState({
     width: window.document.documentElement.clientWidth,
     height: window.document.documentElement.clientHeight
@@ -226,7 +228,12 @@ function MaterialRequestList(props) {
     table: {
       style: {
         height: `${materialRequestList.length === 0 ? 
-          parseInt(windowResolution.height - 100) : 
+          parseInt(windowResolution.height - 100) :
+        filteringStatus ?
+          `${filteredRequestList.length === 0 ?
+            parseInt(windowResolution.height - 100) :
+            parseInt(windowResolution.height - 155)
+          }` : 
           parseInt(windowResolution.height - 155)}px`
       }
     },
@@ -413,24 +420,37 @@ function MaterialRequestList(props) {
 
   // List filter function
   const searchInput = (input) => {
-    let inputValue = input.value.toLowerCase();
+    if (input.value.length < 1){
+      setFilteringStatus(false)
+    } else {
+      setFilteringStatus(true)
+    }
+
     let search = materialRequestList.filter((request) => {
-      if (request.partId.includes(inputValue) || 
-        request.requestId.includes(inputValue) || 
-        request.material.toLowerCase().includes(inputValue) || 
-        request.status.toLowerCase().includes(inputValue) || 
-        request.userName.toLowerCase().includes(inputValue) || 
-        request.quantity.toLowerCase().includes(inputValue) ||
-        DateTime.fromISO(request.userRequestDate).toLocaleString(DateTime.DATETIME_MED).includes(inputValue) ||
-        DateTime.fromISO(request.warehouseRequestDate).toLocaleString(DateTime.DATETIME_MED).includes(inputValue) ||
-        DateTime.fromISO(request.warehouseArrivalDate).toLocaleString(DateTime.DATETIME_MED).includes(inputValue) ||
-        DateTime.fromISO(request.userDeliveryDate).toLocaleString(DateTime.DATETIME_MED).includes(inputValue)
+      if (
+        request.material.toLowerCase().includes(input.value.toLowerCase()) || 
+        request.partId.includes(input.value) || 
+        parseInt(request.quantity) === parseInt(input.value) || 
+        request.status.toLowerCase().includes(input.value.toLowerCase()) || 
+        request.userName.toLowerCase().includes(input.value.toLowerCase()) || 
+        DateTime.fromISO(request.userRequestDate).toLocaleString(DateTime.DATETIME_MED)
+          .includes(input.value.toLowerCase()) ||
+        DateTime.fromISO(request.warehouseRequestDate).toLocaleString(DateTime.DATETIME_MED)
+          .includes(input.value.toLowerCase()) ||
+        DateTime.fromISO(request.warehouseArrivalDate).toLocaleString(DateTime.DATETIME_MED)
+          .includes(input.value.toLowerCase()) ||
+        DateTime.fromISO(request.userDeliveryDate).toLocaleString(DateTime.DATETIME_MED)
+          .includes(input.value.toLowerCase()) ||
+        (request.userRequestDate === '' && "pendiente".includes(input.value.toLowerCase())) ||
+        (request.warehouseRequestDate === '' && "pendiente".includes(input.value.toLowerCase())) ||
+        (request.warehouseArrivalDate === '' && "pendiente".includes(input.value.toLowerCase())) ||
+        (request.userDeliveryDate === '' && "pendiente".includes(input.value.toLowerCase()))
       ){
-        return request;
+        return request
       }
-    });
+    })
     filterRequestList([...search])
-  };
+  }
 
 
   // Modal window selector
@@ -469,17 +489,11 @@ function MaterialRequestList(props) {
 
         requestList.push(newRequest)
       })
-
-      if (materialStatus){
-        dispatch(changeMaterialRequestStatus({
-          ot: selectedProjectOt,
-          partId: part.id,
-          requestStatus: "Habilitado"
-        }))
-      }
     })
 
     setMaterialRequestList(requestList)
+
+    filterRequestList(requestList)
   }, [partList])
   
 
@@ -522,7 +536,7 @@ function MaterialRequestList(props) {
       <div>
         <DataTable
           columns={columns}
-          data={materialRequestList}
+          data={filteredRequestList}
           responsive
           striped
           selectableRowsHighlight

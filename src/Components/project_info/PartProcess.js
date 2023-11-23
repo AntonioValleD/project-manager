@@ -243,8 +243,32 @@ function PartProcess() {
     let selectedProcess = processPath.processList.find(process => process.index === processIndex)
     let previousProcess = processPath.processList.find(process => process.index === processIndex - 1)
 
-    if (selectedProcess.status === "Pendiente" && previousProcess.status === "Finalizado"){
-      return true
+    if (previousProcess){
+      if (selectedProcess.status === "Pendiente" && previousProcess.status === "Finalizado"){
+        return true
+      } else {
+        return false
+      }
+    } else {
+      if (selectedProcess.status === "Pendiente" && selectedProcess.arrowStatus === "Pendiente"){
+        return true
+      } else {  
+        return false
+      }
+    }
+  }
+
+
+  // Show play icon
+  const showPlayIcon = (process) => {
+    if (process.arrowStatus === "Aprobado"){
+      if (currentProcessIndex() < process.index - 1){
+        return true
+      } else if (process.index === 0 && currentProcessIndex() === -1){
+        return true
+      } else {
+        return false
+      }
     } else {
       return false
     }
@@ -405,20 +429,15 @@ function PartProcess() {
                         </label> : lastFinishedProcessIndex() < process.index ?
                         <>
                           {
-                            currentProcessIndex() < process.index - 1 ?
-                            <>
-                              {
-                                process.arrowStatus === "Aprobado" ?
-                                <label
-                                  title="Iniciar proceso"
-                                  className="hover:text-green-300 cursor-pointer"
-                                  onClick={() => setStartProcess(process.index)}
-                                >
-                                  <BsFillPlayFill/>
-                                </label> :
-                                ""
-                              }
-                            </> : ""
+                            showPlayIcon(process) ?
+                            <label
+                              title="Iniciar proceso"
+                              className="hover:text-green-300 cursor-pointer"
+                              onClick={() => setStartProcess(process.index)}
+                            >
+                              <BsFillPlayFill/>
+                            </label> :
+                            ""
                           }
                         </> :
                         ""

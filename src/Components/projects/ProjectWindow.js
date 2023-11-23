@@ -14,12 +14,14 @@ function ProjectWindow() {
   // TabNav functions
   const showTab = (id) => {
     dispatch(editSelectedTab(id))
+
     dispatch(openProject({
       ot: id
     }))
   }
   const closeTab = (id) => {
     dispatch(deleteProjectTab(id))
+
     dispatch(closeProject({
       ot: id
     }))

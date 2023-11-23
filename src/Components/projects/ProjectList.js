@@ -57,6 +57,42 @@ function ProjectList() {
   })
 
 
+  // Material request status light
+  const getMaterialRequestStatus = (partList) => {
+    let requestStatus = []
+
+    for (let i = 0; i < partList.length; i++){
+      let materialRequestList = partList[i].materialRequest.requestList
+
+      if (materialRequestList.length === 0){
+        requestStatus.push("Sin solicitar")
+      } else if (materialRequestList.find(materialRequest => materialRequest.status === "Solicitado")){
+        requestStatus.push("Solicitado")
+      } else if (materialRequestList.find(materialRequest => materialRequest.status === "Comprado")){
+        requestStatus.push("Comprado")
+      } else if (materialRequestList.find(materialRequest => materialRequest.status === "Habilitado")){
+        requestStatus.push("Habilitado")
+      } else if (materialRequestList.find(materialRequest => materialRequest.status === "Entregado")){
+        requestStatus.push("Entregado")
+      }
+    }
+
+    if (requestStatus.includes("Sin solicitar")){
+      return "Sin solicitar"
+    } else if (requestStatus.length === 0){
+      return "Sin solicitar"
+    } else if (requestStatus.includes("Solicitado")){
+      return "Solicitado"
+    } else if (requestStatus.includes("Comprado")){
+      return "Comprado"
+    } else if (requestStatus.includes("Habilitado")){
+      return "Habilitado"
+    } else if (requestStatus.includes("Entregado")){
+      return "Entregado"
+    }
+  }
+
+
   // Table columns definition
   const columns = [
     {
@@ -105,9 +141,56 @@ function ProjectList() {
     },
     {
       name: "Material",
-      selector: (row) => row.projectInfo.materialStatus,
+      selector: (row) => getMaterialRequestStatus(row.parts),
       sortable: true,
       center: true,
+      conditionalCellStyles: [
+        {
+          when: row => getMaterialRequestStatus(row.parts) === "Sin solicitar",
+          style: {
+            color: 'white',
+            backgroundColor: 'red',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.parts) === "Solicitado",
+          style: {
+            color: 'black',
+            backgroundColor: 'orange',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.parts) === "Comprado",
+          style: {
+            color: 'black',
+            backgroundColor: 'yellow',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.parts) === "Habilitado",
+          style: {
+            color: 'white',
+            backgroundColor: 'blue',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+        {
+          when: row => getMaterialRequestStatus(row.parts) === "Entregado",
+          style: {
+            color: 'white',
+            backgroundColor: 'green',
+            borderRadius: "8px",
+            margin: "4px 0"
+          }
+        },
+      ],
       width: "8%"
     },
     {
@@ -267,7 +350,7 @@ function ProjectList() {
 
 
   const searchInput = (input) => {
-    if (input.value.length < 2){
+    if (input.value.length < 1){
       setFilteringStatus(false)
     } else {
       setFilteringStatus(true)
@@ -281,6 +364,7 @@ function ProjectList() {
         project.projectInfo.status.toLowerCase().includes(inputValue) || 
         project.projectInfo.client.toLowerCase().includes(inputValue) || 
         project.projectInfo.clientUser.toLowerCase().includes(inputValue) ||
+        getMaterialRequestStatus(project.parts).toLowerCase().includes(inputValue) ||
         DateTime.fromISO(project.projectInfo.startDate).toLocaleString(DateTime.DATE_MED).toLowerCase()
           .includes(inputValue) ||
         DateTime.fromISO(project.projectInfo.estimatedFinishDate).toLocaleString(DateTime.DATE_MED).toLowerCase()

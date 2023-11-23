@@ -60,10 +60,11 @@ export const appIndexStatus = createSlice({
     closeProject: (state, action) => {
       const ot = action.payload.ot
 
+
       const foundProject = state.projectWindow.find(project => project.ot === ot)
 
       if (foundProject){
-        state.projectWindow.splice(state.productionWindow.indexOf(foundProject), 1)
+        state.projectWindow.splice(state.projectWindow.indexOf(foundProject), 1)
       }
     },
     changeProjectOption: (state, action) => {

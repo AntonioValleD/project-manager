@@ -14,10 +14,10 @@ function ProjectInfoWindow() {
 
 
   // Content selector
-  let content;
-  if (projectIndex.partOptions.selectedPart !== ""){
+  let content
+  if (projectIndex && projectIndex.partOptions.selectedPart !== ""){
     content = <PartOptionSelector/>
-  } else if (projectIndex.projectOptions.materialRequest){
+  } else if (projectIndex && projectIndex.projectOptions.materialRequest){
     content = <MaterialRequestList/>
   } else {
     content = <ProjectStructure/>

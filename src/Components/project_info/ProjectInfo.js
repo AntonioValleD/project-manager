@@ -19,7 +19,7 @@ import NewProjectModal from "../modals/NewProjectModal"
 
 function ProjectInfo() {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Global redux state
@@ -103,7 +103,7 @@ function ProjectInfo() {
   return (
     <div 
       className="text-center text-white ml-px mt-1"
-      style={{width: "37vw"}}
+      style={{minWidth: "37vw"}}
     >
       {modalWindow}
 
@@ -316,7 +316,7 @@ function ProjectInfo() {
       </div>
 
     </div>
-  );
+  )
 }
 
-export default ProjectInfo;
+export default ProjectInfo
