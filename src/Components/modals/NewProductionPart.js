@@ -2,38 +2,31 @@
 import "animate.css"
 
 // React hooks
-import { useState, useRef } from "react"
-
+import { useState, useRef, useEffect } from "react"
 
 // Redux toolkit hooks
-import { useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 
 // Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 
 // Components
+import toast, { Toaster } from 'react-hot-toast'
 import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
-import AlertInfoModal from "./AlertInfoModal"
 
 
 function NewProductionPart() {
   // Hooks
   const dispatch = useDispatch()
 
-  const [error, setError] = useState({
-    status: false,
-    message: '',
-  }); 
 
-  const [success, setSuccess] = useState({
-    status: false,
-    message: '',
-  })
+  // Redux state
+  const projectList = useSelector(state => state.projectList)
 
+
+  // Local component state
   const [closeBtn, setCloseBtn] = useState(false)
-
-  const [partInfoStatus, setPartInfoStatus] = useState(false)
 
   const [newPart, setNewPart] = useState({})
 
@@ -47,46 +40,6 @@ function NewProductionPart() {
       ot: "0001",
       partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
     },
-    {
-      ot: "0002",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0003",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0004",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0005",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0006",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0007",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0008",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0009",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"] 
-    },
-    {
-      ot: "0010",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
-    },
-    {
-      ot: "0011",
-      partList: ["01", "02", "03", "04", "05", "06", "07", "08", "09"]
-    }
   ])
 
   const [selectedProject, setSelectedProject] = useState("")
@@ -96,6 +49,13 @@ function NewProductionPart() {
   const [selectedPart, setSelectedPart] = useState("")
 
   const [hoverPart, setHoverPart] = useState("")
+
+  const [selectedPartInfo, setSelectedPartInfo] = useState({
+    partName: "",
+    material: "",
+    quantity: 0,
+    client: "",
+  })
 
 
   // Input values
@@ -127,9 +87,14 @@ function NewProductionPart() {
 
   // Submit new part info
   const submitNewPart = () => {
-    console.log("add new part")
+    if (selectedProject === ""){
+      toast.error("Seleccione una O.T.")
+    } else if (selectedPart === ""){
+      toast.error("Seleccione una pieza")
+    }
   }
 
+  
   // Close window function
   const closeModal = () => {
     if (closeBtn){
@@ -146,30 +111,55 @@ function NewProductionPart() {
 
 
   // Input references
-  const partInputRef = useRef(null)
   const indexInputRef = useRef(null)
-  const clientInputRef = useRef(null)
-  const materialInputRef = useRef(null)
-  const quantityInputRef = useRef(null)
   const hoursInputRef = useRef(null)
   const minutsInputRef = useRef(null)
 
 
-  // Error modal controller
-  let errorInfo
-  let messageInfo
-  if (error.status){
-    errorInfo = <AlertInfoModal
-      message={error.message}
-      textColor="red"
-    />
-  } 
-  if (success.status){
-    messageInfo = <AlertInfoModal
-      message={success.message}
-      textColor="green"
-    />
-  }
+  // Load production project list
+  useEffect(() => {
+    let availableProductionParts = []
+
+    projectList.forEach((project) => {
+      if (project.projectInfo.status === "En proceso"){
+        let partList = []
+
+        project.parts.forEach((part) => {
+          let foundProcess = part.processPath.processList
+            .find(process => process.status === "Pendiente" && process.arrowStatus === "Aprobado")
+          
+          if (foundProcess){
+            partList.push(part.id)
+          }
+        })
+
+        if (partList.length > 0){
+          availableProductionParts.push({
+            ot: project.ot,
+            partList: [...partList],
+          })
+        }
+      }
+    })
+
+    setProductionProjectList([...availableProductionParts])
+  }, [projectList])
+
+
+  // Load selected part info
+  useEffect(() => {
+    if (selectedPart !== ""){
+      let currentProject = projectList.find(project => project.ot === selectedProject)
+      let currentPartInfo = currentProject.parts.find(part => part.id === selectedPart).partInfo
+
+      setSelectedPartInfo({
+        partName: currentPartInfo.name,
+        material: currentPartInfo.material,
+        quantity: currentPartInfo.quantity,
+        client: currentProject.projectInfo.client,
+      })
+    }
+  }, [selectedPart])
 
 
   return (
@@ -177,8 +167,19 @@ function NewProductionPart() {
       className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen
         top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
+      <Toaster
+        toastOptions={{
+          position: "top-center",
+          duration: 2000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+            borderRadius: '2px',
+          },
+        }}
+      />
       <div
-        style={{ width: "550px" }}
+        style={{ width: "570px" }}
         className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl
           shadow-gray-700 flex flex-col items-center animate__animated animate__faster
           ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'}`}
@@ -195,13 +196,12 @@ function NewProductionPart() {
           className="flex justify-center gap-x-4 w-full"
         >
           <div className="flex w-full justify-between pr-4">
-            <div className="flex flex-col items-center">
-              <label className="font-medium mb-px">
+            <div className="flex flex-col w-20">
+              <label className="font-medium text-center mb-px pr-4">
                 O.T.
               </label>
               <div
-                className={`flex flex-col items-center
-                  ${productionProjectList.length > 8 ? "overflow-y-scroll h-48" : ""}`}
+                className={`flex flex-col items-center overflow-y-scroll h-48`}
               >
                 {
                   productionProjectList.map((project) => (
@@ -221,15 +221,12 @@ function NewProductionPart() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center">
-              <label className="font-medium">
+            <div className="flex flex-col w-24">
+              <label className="font-medium text-center pr-2 mb-px">
                 Pieza
               </label>
               <div
-                className={`flex flex-col items-center
-                  ${selectedProject !== "" && productionProjectList
-                    .find(project => project.ot === selectedProject).partList.length > 8 ?
-                  "overflow-y-scroll h-48" : ""}`}
+                className={`flex flex-col items-center overflow-y-scroll h-48`}
               >
                 {
                   selectedProject !== "" &&
@@ -238,7 +235,7 @@ function NewProductionPart() {
                       key={part}
                       className={`${part === selectedPart ? 'bg-blue-900 text-white' :
                         hoverPart === part ? 'bg-blue-600 text-white' :
-                        'bg-white text-black'} px-2 py-px rounded-sm mx-2`}
+                        'bg-white text-black'} px-2 py-px rounded-sm mx-2 mb-px`}
                       onClick={() => setSelectedPart(part)}
                       onMouseEnter={() => setHoverPart(part)}
                       onMouseLeave={() => setHoverPart("")}
@@ -268,9 +265,7 @@ function NewProductionPart() {
                 <input
                   disabled
                   className="border-blue-950 border-2 px-1 font-regular rounded-sm bg-gray-200"
-                  ref={partInputRef}
-                  value={newPart.part}
-                  name="part"
+                  value={selectedPartInfo.partName}
                   onChange={(event) => inputValues(event)}
                 />
               </div>
@@ -278,10 +273,8 @@ function NewProductionPart() {
               <div className="flex flex-col w-4/12">
                 <label className="font-medium">Material</label>
                 <input
-                  ref={materialInputRef}
-                  value={newPart.material}
+                  value={selectedPartInfo.material}
                   className="border-blue-950 border-2 px-1 font-regular rounded-sm bg-gray-200"
-                  name="material"
                   disabled
                   onChange={(event) => inputValues(event)}
                 />
@@ -296,11 +289,10 @@ function NewProductionPart() {
               >
                 <label className="font-medium">Cantidad</label>
                 <input
-                  ref={quantityInputRef}
-                  value={newPart.quantity}
+                  value={selectedPartInfo.quantity}
+                  type="number"
                   disabled
                   className="border-blue-950 border-2 px-1 font-regular rounded-sm bg-gray-200"
-                  name="quantity"
                   onChange={(event) => inputValues(event)}
                 />
               </div>
@@ -310,11 +302,9 @@ function NewProductionPart() {
               >
                 <label className="font-medium">Cliente</label>
                 <input
-                  ref={clientInputRef}
-                  value={newPart.client}
+                  value={selectedPartInfo.client}
                   type="text"
                   className="border-blue-950 border-2 px-1 font-regular rounded-sm bg-gray-200"
-                  name="client"
                   disabled
                   onChange={(event) => inputValues(event)}
                 />
@@ -374,9 +364,6 @@ function NewProductionPart() {
           </div>
 
         </div>
-
-        {messageInfo}
-        {errorInfo}
 
         <div className="flex justify-end gap-x-4 mt-3">
           <GreenButton btnText="Guardar" btnAction={submitNewPart} />

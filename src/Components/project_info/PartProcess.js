@@ -24,7 +24,6 @@ import { PiArrowFatRightFill } from "react-icons/pi"
 // Components
 import { DateTime } from "luxon"
 import toast, { Toaster } from 'react-hot-toast'
-import rightArrowImg from '../assets/img/Flecha-w.webp'
 import RedButton from "../assets/buttons/RedButton"
 import AddPartProcess from "../modals/AddPartProcess"
 import ConfirmationModal from "../modals/ConfirmationModal"

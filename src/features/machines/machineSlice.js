@@ -11,6 +11,56 @@ let initialState = [
       registerDate: "",
       brand: "FANUC",
     },
+    parts: [
+      {
+        index: 0,
+        ot: "0001",
+        project: "Proyecto 1",
+        id: "01",
+        name: "Parte 1",
+        quantity: 100,
+        finishedParts: 10,
+        material: "Aluminio",
+        client: "Cliente 1",
+        estimatedTime: {
+          hours: 4,
+          minutes: 25,
+        },
+        status: "Finalizado",
+      },
+      {
+        index: 1,
+        ot: "0001",
+        project: "Proyecto 1",
+        id: "01",
+        name: "Parte 1",
+        quantity: 100,
+        finishedParts: 10,
+        material: "Aluminio",
+        client: "Cliente 1",
+        estimatedTime: {
+          hours: 4,
+          minutes: 25,
+        },
+        status: "En proceso",
+      },
+      {
+        index: 2,
+        ot: "0001",
+        project: "Proyecto 1",
+        id: "01",
+        name: "Parte 1",
+        quantity: 100,
+        finishedParts: 10,
+        material: "Aluminio",
+        client: "Cliente 1",
+        estimatedTime: {
+          hours: 4,
+          minutes: 25,
+        },
+        status: "Pendiente",
+      }
+    ],
 
     machineStatus: {
       running: false,

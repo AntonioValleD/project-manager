@@ -21,12 +21,13 @@ function MachineInfo() {
 
 
   // Redux state
-  const selectedMachineName = useSelector(state => state.appIndex).productionWindow.find(machine => machine.selected === true).name
+  const selectedMachineName = useSelector(state => state.appIndex).productionWindow
+    .find(machine => machine.selected === true).name
 
-  const selectedMachine = useSelector(state => state.machineList).find(machine => machine.name === selectedMachineName)
+  const selectedMachine = useSelector(state => state.machineList)
+    .find(machine => machine.name === selectedMachineName)
 
-  const selectedProject = useSelector(state => state.projectList).find(project => project.ot === selectedMachine.currentProcess.projectOt)
-
+  const partInProcess = selectedMachine.parts.find(part => part.status === "En proceso")
 
   // Local component state
   const [currentProcess, setCurrentProcess]= useState(selectedMachine.currentProcess)
@@ -83,15 +84,6 @@ function MachineInfo() {
       // />
     }
   }
-
-
-  useEffect(() => {
-    if (selectedProject){
-      setSelectedPart({
-        ...selectedProject.parts.find(part => part.id === currentProcess.partId)
-      })
-    }
-  }, [selectedProject])
 
 
   // Current process timer
@@ -158,13 +150,18 @@ function MachineInfo() {
         {selectedMachineName}
       </label>
 
-      <div className="flex w-full mb-1 gap-x-4">
-        <div className="flex flex-col w-1/2">
+      <div 
+        className="flex w-full mb-1 gap-x-4"
+      >
+        <div 
+          className="flex flex-col w-1/2"
+        >
           <label className="text-white">Tipo de maquina</label>
           <label className="bg-white text-black font-semibold rounded-sm">
             {selectedMachine.machineInfo.machiningType}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label className="text-white">Operario</label>
           <label className="bg-white text-black font-semibold rounded-sm">
@@ -173,23 +170,37 @@ function MachineInfo() {
         </div>
       </div>
 
+
+      <label 
+        className="flex justify-center text-lg mt-3 font-semibold text-white"
+      >
+        Proceso actual
+      </label>
+
       <div className="flex gap-x-4 mb-1">
         <div className="flex flex-col w-7/12">
           <label className="text-white px-3">Proyecto</label>
-          <label className="bg-white text-black px-1 font-semibold rounded-sm text-ellipsis whitespace-nowrap overflow-hidden">
+          <label
+            title={partInProcess ? partInProcess.project : "N/A"}
+            className="bg-white text-black px-1 font-semibold rounded-sm
+              text-ellipsis whitespace-nowrap overflow-hidden"
+          >
             {
-              selectedProject ?
-              selectedProject.projectInfo.name :
+              partInProcess ?
+              partInProcess.project :
               "N/A"
             }
           </label>
         </div>
+
         <div className="flex flex-col w-6/12">
           <label className="text-white">Cliente</label>
-          <label className="bg-white text-black font-semibold rounded-sm">
-          {
-              selectedProject ?
-              selectedProject.projectInfo.client :
+          <label 
+            className="bg-white text-black font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              partInProcess.client :
               "N/A"
             }
           </label>
@@ -199,59 +210,89 @@ function MachineInfo() {
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-2/12">
           <label className="text-white">O.T.</label>
-          <label className="bg-white font-semibold rounded-sm">
-            {selectedMachine.currentProcess.projectOt}
-          </label>
-        </div>
-        <div className="flex flex-col w-7/12">
-          <label className="text-white">Pieza en producción</label>
-          <label className="bg-white font-semibold rounded-sm">
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
             {
-              selectedPart === "" ?
-              "N/A" :
-              selectedPart.partInfo.name
+              partInProcess ?
+              partInProcess.ot :
+              "N/A"
             }
           </label>
         </div>
+
+        <div className="flex flex-col w-7/12">
+          <label className="text-white">Pieza en producción</label>
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              partInProcess.name :
+              "N/A"
+            }
+          </label>
+        </div>
+
         <div className="flex flex-col w-1/2">
           <label className="text-white">Material</label>
-          <label className="bg-white font-semibold rounded-sm">
-          {
-              selectedPart === "" ?
-              "N/A" :
-              selectedPart.partInfo.material
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              partInProcess.material :
+              "N/A"
             }
           </label>
         </div>
       </div>
 
-      <label 
-        className="flex justify-center text-lg mt-3 font-semibold text-white"
-      >
-        Proceso actual
-      </label>
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-6/12">
           <label className="text-white">Cantidad</label>
-          <label className="bg-white font-semibold rounded-sm">
-            {currentProcess.partsQuantity}
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              partInProcess.quantity :
+              "N/A"
+            }
           </label>
         </div>
+
         <div className="flex flex-col w-7/12">
           <label className="text-white">Terminadas</label>
-          <label className="bg-white font-semibold rounded-sm">
-            {currentProcess.finishedParts}
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              partInProcess.finishedParts :
+              "N/A"
+            }
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo estimado</label>
-          <label className="bg-white font-semibold rounded-sm">
-            {currentProcess.estimatedTime}
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
+            {
+              partInProcess ?
+              `${partInProcess.estimatedTime.hours} hrs ${partInProcess.estimatedTime.minutes} min` :
+              "N/A"
+            }
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo real</label>
-          <label className="bg-white font-semibold rounded-sm">
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
             {"N/A"}
           </label>
         </div>

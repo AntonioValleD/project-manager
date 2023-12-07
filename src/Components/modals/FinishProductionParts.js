@@ -1,47 +1,50 @@
-import { useSelector, useDispatch } from "react-redux";
-import { changeModalStatus } from "../../features/modalSlice/modalSlice";
-import RedButton from "../assets/buttons/RedButton";
-import GreenButton from "../assets/buttons/GreenButton";
-import { useState } from "react";
-import { updateFinishedParts } from "../../features/productionListSlice/productionListSlice";
-import { updateTotalParts } from "../../features/machines/machineSlice";
+// React hooks
+import { useState } from "react"
+
+// Redux toolkit hooks
+import { useSelector, useDispatch } from "react-redux"
+
+// Redux toolkit reducers
+import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { updateTotalParts } from "../../features/machines/machineSlice"
+
+// Components
+import RedButton from "../assets/buttons/RedButton"
+import GreenButton from "../assets/buttons/GreenButton"
+
 
 function FinishProductionPart(props) {
   // Hooks
-  const machineParts = useSelector(state => state.machineList).find(machine => machine.name === props.machine).operation.totalParts;
+  const machineParts = useSelector(state => state.machineList)
+    .find(machine => machine.name === props.machine).operation.totalParts
 
   const dispatch = useDispatch();
-  const [updateQuantity, setUpdateQuantity] = useState(0);
+  const [updateQuantity, setUpdateQuantity] = useState(0)
 
 
   /* Funtions */
   const aceptButton = () => {
-    let partsQuantity = parseInt(props.partsQuantity);
-    let finishedParts = parseInt(props.finishedParts);
-    let totalFinishedParts = parseInt(finishedParts) + parseInt(updateQuantity);
+    let partsQuantity = parseInt(props.partsQuantity)
+    let finishedParts = parseInt(props.finishedParts)
+    let totalFinishedParts = parseInt(finishedParts) + parseInt(updateQuantity)
 
-    let difference = 0;
+    let difference = 0
     if (totalFinishedParts >= partsQuantity){
-      difference = totalFinishedParts - partsQuantity;
-      totalFinishedParts = partsQuantity;
+      difference = totalFinishedParts - partsQuantity
+      totalFinishedParts = partsQuantity
     }
 
-    let machineQuantity = parseInt(machineParts) + parseInt(updateQuantity) - difference;
+    let machineQuantity = parseInt(machineParts) + parseInt(updateQuantity) - difference
 
     dispatch(updateTotalParts({
       machine: props.machine,
       totalParts: machineQuantity.toString(),
     }))
-
-    dispatch(updateFinishedParts({
-      totalFinishedParts: totalFinishedParts.toString(),
-      machine: props.machine,
-    }))
     
-    cancelButton();
+    cancelButton()
   }
   const cancelButton = () => {
-    dispatch(changeModalStatus({modalName: 'finishParts', modalStatus: false}));
+    dispatch(changeModalStatus({modalName: 'finishParts', modalStatus: false}))
   };
 
   // Input value 

@@ -245,7 +245,7 @@ function MaterialRequestList(props) {
     {
       when: row => row.id === selectedRow,
       style: {
-        backgroundColor: 'rgb(21 128 61)',
+        backgroundColor: 'rgb(22 163 74)',
         color: 'white',
       }
     },

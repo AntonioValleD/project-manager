@@ -68,7 +68,7 @@ const initialState = [
                 minuts: 30,
               },
               finishDate: "",
-              status: "En proceso",
+              status: "Pendiente",
               arrowStatus: "Aprobado",
             },
             {

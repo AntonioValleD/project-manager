@@ -3,7 +3,7 @@ import TabNav from "../main/TabNav"
 import MachineStructure from "../machine_info/MachineStructure"
 import { useSelector, useDispatch } from "react-redux"
 import { deleteMachineTab, unselectMachineTab, editMachineTab } from "../../features/machine_tabs/machineTabsSlice"
-import { selectMachinePart } from "../../features/productionListSlice/productionListSlice"
+
 
 function ProductionWindow() {
   const dispatch = useDispatch()
@@ -18,9 +18,6 @@ function ProductionWindow() {
     dispatch(editMachineTab(id));
   }
   const closeTab = (id) => {
-    dispatch(selectMachinePart({
-      machine: id,
-    }))
     dispatch(deleteMachineTab(id))
   }
   const goHome = () => {

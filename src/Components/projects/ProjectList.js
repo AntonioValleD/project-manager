@@ -316,7 +316,7 @@ function ProjectList() {
     {
       when: row => row.ot === selectedProject,
       style: {
-        backgroundColor: 'rgb(21 128 61)',
+        backgroundColor: 'rgb(22 163 74)',
         color: 'white',
       }
     },

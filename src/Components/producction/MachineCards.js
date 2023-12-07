@@ -21,8 +21,8 @@ import DeleteMachineModal from "../modals/DeleteMachineModal"
 function MachineCards() {
   // Hooks
   const dispatch = useDispatch()
-  const machines = useSelector(state => state.machineList)
-  const productionList = useSelector(state => state.productionList)
+  const machineList = useSelector(state => state.machineList)
+
   const windowStatus = useSelector(state => state.selectedWindow).production
 
   
@@ -41,10 +41,6 @@ function MachineCards() {
   const [windowResolution, setWindowResolution] = useState({
     width: window.document.documentElement.clientWidth,
     height: window.document.documentElement.clientHeight
-  })
-
-  const [cardGrid, setCardGrid] = useState({
-    gap: 8,
   })
 
   const [cardSize, setCardSize] = useState({
@@ -93,7 +89,7 @@ function MachineCards() {
 
   // Edit machine info
   const editMachineInfo = (mName) => {
-    const selectedMachineInfo = machines.find(machine => machine.name === hoverMachineName).machineInfo
+    const selectedMachineInfo = machineList.find(machine => machine.name === hoverMachineName).machineInfo
 
     setSelectedMachineName(mName)
 
@@ -121,7 +117,7 @@ function MachineCards() {
   // Cards width calculator
   const cardWidthCalc = () => {
     let cardColumns = parseInt(windowResolution.width / 265)
-    const realCardSize = (windowResolution.width - ((cardColumns - 1) * cardGrid.gap) - 20) / cardColumns
+    const realCardSize = (windowResolution.width - ((cardColumns - 1) * 8) - 20) / cardColumns
 
     const roundedCardSize = parseInt(realCardSize)
 
@@ -180,11 +176,11 @@ function MachineCards() {
 
 
   return (
-    <div className="flex flex-wrap justify-start gap-x-2 gap-y-2 mt-2">
+    <div className="flex flex-wrap justify-start gap-x-2 gap-y-2 mt-1">
       <Toaster
         toastOptions={{
           position: "top-center",
-          duration: 3000,
+          duration: 2000,
           style: {
             background: '#363636',
             color: '#fff',
@@ -197,16 +193,18 @@ function MachineCards() {
 
       <label
         title="Nueva máquina"
-        className="fixed bottom-10 right-10 flex items-center justify-center text-white text-3xl rounded-full bg-green-900 h-12 w-12 pb-1 hover:bg-green-700 cursor-pointer"
+        className="fixed bottom-10 right-10 flex items-center justify-center text-white
+          text-3xl rounded-full bg-green-900 h-12 w-12 pb-1 hover:bg-green-600 cursor-pointer"
         onClick={() => addNewMachine()}
       >
         +
       </label>
 
-      {machines.map((machine) => (
+      {machineList.map((machine) => (
         <div
           key={machine.name}
-          className="text-black p-2 rounded-sm h-fit text-center bg-gray-800 hover:bg-gray-600 select-none transition-all duration-75"
+          className="text-black p-2 rounded-sm h-fit text-center bg-gray-800 hover:bg-gray-600
+            select-none transition-all duration-75"
           onDoubleClick={() => openNewMachine(machine.name)}
           onMouseEnter={() => setHoverMachineName(machine.name)}
           onMouseLeave={() => setHoverMachineName("")}
@@ -244,37 +242,71 @@ function MachineCards() {
           </div>
 
           <div
-            className="flex flex-col mt-px"
+            className="flex mt-px gap-x-2"
           >
-            <label className="text-white">Proyecto</label>
-            <label
-              className="bg-white text-black font-semibold pl-1 rounded-sm whitespace-nowrap overflow-hidden text-ellipsis"
+            <div 
+              className="flex flex-col w-full"
             >
-              {"N/A"}
-            </label>
-          </div>
-          <div
-            className="flex"
-          >
-            <div className="flex flex-col w-2/3">
               <label className="text-white">Pieza actual</label>
               <label
-                className="bg-white mr-3 font-semibold rounded-sm whitespace-nowrap overflow-hidden text-ellipsis"
+                className="bg-white font-semibold rounded-sm whitespace-nowrap
+                  overflow-hidden text-ellipsis"
               >
-                {productionList[machine.name] ? productionList[machine.name].find(part => part.index === 0).part : "N/A"}
+                {machine.parts.find(part => part.status === "En proceso") ? 
+                  machine.parts.find(part => part.status === "En proceso").name : "N/A"}
               </label>
             </div>
-            <div className="flex flex-col w-1/3">
+
+            <div className="flex flex-col w-5/12">
+              <label className="text-white">O.T.</label>
+              <label
+                className="bg-white text-black font-semibold pl-1 rounded-sm
+                  whitespace-nowrap overflow-hidden text-ellipsis"
+              >
+                {machine.parts.find(part => part.status === "En proceso") ? 
+                  machine.parts.find(part => part.status === "En proceso").ot : "N/A"}
+              </label>
+            </div>
+
+          </div>
+
+          <div
+            className="flex gap-x-2"
+          >
+            <div 
+              className="flex flex-col w-5/12"
+            >
+              <label className="text-white">Cantidad</label>
+              <label
+                className="bg-white font-semibold rounded-sm whitespace-nowrap
+                  overflow-hidden text-ellipsis"
+              >
+                {machine.parts.find(part => part.status === "En proceso") ? 
+                  machine.parts.find(part => part.status === "En proceso").quantity : "N/A"}
+              </label>
+            </div>
+
+            <div 
+              className="flex flex-col w-5/12"
+            >
+              <label className="text-white">Terminadas</label>
+              <label
+                className="bg-white font-semibold rounded-sm whitespace-nowrap
+                  overflow-hidden text-ellipsis"
+              >
+                {machine.parts.find(part => part.status === "En proceso") ? 
+                  machine.parts.find(part => part.status === "En proceso").finishedParts : "N/A"}
+              </label>
+            </div>
+
+            <div 
+              className="flex flex-col w-full"
+            >
               <label className="text-white">Tiempo</label>
               <label
                 className="bg-white font-semibold rounded-sm"
               >
-                {
-                  productionList[machine.name] ? (
-                    productionList[machine.name].find(part => part.index === 0).controlTime.startTime ? 
-                    formaterMS(Date.now() - productionList[machine.name].find(part => part.index === 0).controlTime.startTime - productionList[machine.name].find(part => part.index === 0).controlTime.deathTime)
-                    : "00:00:00") : "00:00:00"
-                }
+                {"00:00:00"}
               </label>
             </div>
           </div>

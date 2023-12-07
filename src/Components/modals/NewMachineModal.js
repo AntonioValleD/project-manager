@@ -239,11 +239,14 @@ function NewMachineModal(props) {
 
   return (
     <div
-      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen h-screen top-0 right-0 z-10 flex items-center justify-center text-left`}
+      className={`${closeBtn ? 'bg-black/0' : 'bg-black/40'} fixed w-screen
+        h-screen top-0 right-0 z-10 flex items-center justify-center text-left`}
     >
       <div
         style={{ width: "500px" }}
-        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl shadow-gray-700 animate__animated ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'} animate__faster`}
+        className={`text-black h-fit relative rounded-sm p-4 bg-white shadow-xl
+          shadow-gray-700 animate__animated ${closeBtn ? 'animate__fadeOut' : 'animate__fadeIn'}
+          animate__faster`}
         onAnimationEnd={() => closeModal()}
       >
         <div className="flex justify-center text-xl font-semibold pb-2">
