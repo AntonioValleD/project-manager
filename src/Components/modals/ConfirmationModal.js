@@ -40,6 +40,9 @@ function WarehouseConfirmationModal(props) {
       props.acceptFn(props.processIndex)
     }
 
+    if (props.confirmFn){
+      props.confirmFn()
+    }
     closeWindow()
   }
 
@@ -72,7 +75,7 @@ function WarehouseConfirmationModal(props) {
             btnAction={acceptFunction}
           />
           <RedButton 
-            btnText="Cerrar" 
+            btnText="Cancelar" 
             btnAction={closeWindow}
           />
         </div>

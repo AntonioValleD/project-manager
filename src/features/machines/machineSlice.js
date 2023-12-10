@@ -16,7 +16,7 @@ let initialState = [
         index: 0,
         ot: "0001",
         project: "Proyecto 1",
-        id: "01",
+        partId: "01",
         name: "Parte 1",
         quantity: 100,
         finishedParts: 10,
@@ -32,23 +32,23 @@ let initialState = [
         index: 1,
         ot: "0001",
         project: "Proyecto 1",
-        id: "01",
+        partId: "01",
         name: "Parte 1",
-        quantity: 100,
-        finishedParts: 10,
+        quantity: 103,
+        finishedParts: 0,
         material: "Aluminio",
         client: "Cliente 1",
         estimatedTime: {
           hours: 4,
           minutes: 25,
         },
-        status: "En proceso",
+        status: "Siguiente",
       },
       {
         index: 2,
         ot: "0001",
         project: "Proyecto 1",
-        id: "01",
+        partId: "01",
         name: "Parte 1",
         quantity: 100,
         finishedParts: 10,
@@ -62,25 +62,15 @@ let initialState = [
       }
     ],
 
-    machineStatus: {
-      running: false,
-      pause: false,
-    },
-
-    currentProcess: {
-      projectOt: "0001",
-      partId: "01",
-      partsQuantity: 0,
-      finishedParts: 0,
-      estimatedTime: "N/A",
-      realTime: "N/A"
+    machiningStatus: {
+      startedStatus: false,
+      pausedStatus: false,
     },
 
     dayProduction: {
-      startTime: "",
+      operationTime: "",
       deathTime: "",
-      finishTime: "",
-      totalParts: 0
+      totalParts: 10
     },
 
     processTiming: {
@@ -121,68 +111,82 @@ export const machineSlice = createSlice({
 
       state.splice(state.indexOf(state.find(machine => machine.name === machineName)), 1)
     },
-    startProductionMachine: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.running = true
-        machine.pause = true
-        machine.startTime = Date.now()
-        machine.pauseTime = Date.now()
+
+
+    // Production control actions
+    addProductionPart: (state, action) => {
+      const machineName = action.payload.machineName
+      const newPart = {...action.payload.newPart}
+
+      let newPartIndex = newPart.index
+
+      const selectedMachine = state.find(machine => machine.name === machineName)
+
+      if (selectedMachine.parts.length - 1 < newPartIndex){
+        selectedMachine.parts.push(newPart)
+      } else {
+        let newPartList = []
+
+        for (let i = 0; i < selectedMachine.parts.length; i++){
+          if (i < newPartIndex){
+            newPartList.push(selectedMachine.parts[i])
+
+          } else if (i === newPartIndex){
+            newPartList.push(newPart)
+            newPartList.push({
+              ...selectedMachine.parts[i],
+              index: i + 1,
+              status: "Pendiente"
+            })
+
+          } else if (i > newPartIndex){
+            newPartList.push({
+              ...selectedMachine.parts[i],
+              index: i + 1,
+              status: "Pendiente"
+            })
+          }
+        }
+
+        selectedMachine.parts = newPartList
       }
     },
-    pauseProductionMachine: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.running = false
+    deleteProductionPart: (state, action) => {
+      const machineName = action.payload.machineName
+      const partIndex = action.payload.partIndex
+
+      const productionPartList = state.find(machine => machine.name === machineName).parts
+      const selectedPart = productionPartList.find(part => part.index === partIndex)
+
+      if (selectedPart){
+        productionPartList.splice(partIndex, 1)
+
+        for (let i = 0; i < productionPartList.length; i++){
+          productionPartList[i].index = i
+        }
       }
     },
-    continueProductionMachine: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.running = true
+    changeMachiningStatus: (state, action) => {
+      const machineName = action.payload.machineName
+      const statusName = action.payload.statusName
+      const statusValue = action.payload.statusValue
+
+      const currentMachiningStatus = state.find(machine => machine.name === machineName).machiningStatus
+      if (currentMachiningStatus){
+        currentMachiningStatus[statusName] = statusValue
       }
     },
-    stopProductionMachine: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.pause = false
-        machine.running = false
-        machine.finishTime = Date.now()
+    changePartStatus: (state, action) => {
+      const machineName = action.payload.machineName
+      const partIndex = action.payload.partIndex
+      const statusValue = action.payload.statusValue
+
+      const selectedPart = state.find(machine => machine.name === machineName).parts[partIndex]
+      if (selectedPart){
+        selectedPart.status = statusValue
       }
     },
-    pauseMachineDeathTime: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.pause = true
-        machine.pauseTime = Date.now()
-      }
-    },
-    continueMachiningDeathTime: (state, action) => {
-      let machineName = action.payload.machine
-      const machine = state.find(
-        (machine) => machine.name === machineName
-      ).operation
-      if (machine) {
-        machine.pause = false
-        machine.restartTime = Date.now()
-        machine.deathTime += machine.restartTime - machine.pauseTime
-      }
-    },
+
     updateTotalParts: (state, action) => {
       let machineName = action.payload.machine
       let totalParts = action.payload.totalParts
@@ -202,12 +206,12 @@ export const {
   addMachine,
   editMachineInfo,
   deleteMachine,
-  startProductionMachine,
-  pauseProductionMachine,
-  continueProductionMachine,
-  stopProductionMachine,
-  pauseMachineDeathTime,
-  continueMachiningDeathTime,
   updateTotalParts,
+
+  // Production control actions
+  addProductionPart,
+  deleteProductionPart,
+  changeMachiningStatus,
+  changePartStatus,
 } = machineSlice.actions
 export default machineSlice.reducer

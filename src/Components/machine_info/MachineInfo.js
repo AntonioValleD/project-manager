@@ -29,120 +29,38 @@ function MachineInfo() {
 
   const partInProcess = selectedMachine.parts.find(part => part.status === "En proceso")
 
+
   // Local component state
-  const [currentProcess, setCurrentProcess]= useState(selectedMachine.currentProcess)
-
-  const [dayProduction, setDayProduction]= useState({
-    totalParts: 0
-  })
-
-  const [selectedPart, setSelectedPart] = useState("")
-
   const [processTiming, setProcessTiming] = useState(selectedMachine.processTiming)
 
-
-  // Timmer hooks
-  const [deathTime, setDeathTime] = useState();
-  const [machineTime, setMachineTime] = useState();
-  const [totalTime, setTotalTime] = useState();
-
-
-  const progresPercentage = () => {
-    if (currentProcess.finishedParts === 0) {
+  // Progress percentage bar calculator
+  const progressPrecentage = () => {
+    if (partInProcess === undefined){
       return "0%"
     } else {
-      return ((currentProcess.finishedParts * 100) / currentProcess.partsQuantity).toFixed(2) + '%'
+      let totalParts = partInProcess.quantity
+      let finishedParts = partInProcess.finishedParts
+
+      let progress = (parseInt(finishedParts) / parseInt(totalParts)) * 100
+
+      return `${progress.toFixed(1)}%`
     }
   }
 
   
   // Button functions
   const finishParts = () => {
-    dispatch(changeModalStatus({
-      modalName: "finishParts",
-      modalStatus: true,
-    }))
+    console.log("finish parts")
   }
 
 
   // Modal window selector
-  let modalWindow;
-  const modalStatus = useSelector(state => state.modalStatus);
-  if (modalStatus.finishParts){
-    if (currentProcess.pinit){
-      modalWindow = <FinishProductionPart
-        partName={currentProcess.part}
-        partsQuantity={currentProcess.quantity}
-        finishedParts={currentProcess.finished}
-        machine={selectedMachineName}
-      />
-    } else {
-      // modalWindow = <NoItemSelected
-      //   modalName="finishParts"
-      //   textTitle="Finalizar piezas"
-      //   textDescription="No hay ninguna pieza en producción"
-      // />
-    }
-  }
-
-
-  // Current process timer
-  useEffect(() => {
-    let cronometer = null;
-    let deathTime = currentProcess.deathTime;
-
-    if (currentProcess.pinit){
-      cronometer = setInterval(() => {
-        setTotalTime(formaterMS(Date.now() - currentProcess.controlTime.startTime - deathTime))
-      }, 1000/60);
-    } else {
-      setTotalTime(formaterMS(currentProcess.pauseTime - deathTime - currentProcess.startTime))
-      clearInterval(cronometer);
-    }
-    return () => {
-      clearInterval(cronometer)
-    };
-  }, [currentProcess.pinit, selectedMachineName])
-
-
-  // Machine timer
-  useEffect(() => {
-    let cronometer = null;
-
-    if (selectedMachine.machineStatus.running){
-      cronometer = setInterval(() => {
-        setMachineTime(formaterMS(Date.now() - selectedMachine.currentProcess.startTime))
-      }, 1000/60);
-    } else {
-      setMachineTime(formaterMS(selectedMachine.currentProcess.pauseTime - selectedMachine.currentProcess.startTime))
-      clearInterval(cronometer);
-    }
-
-    return () => clearInterval(cronometer);
-  }, [selectedMachine.machineStatus.running, selectedMachineName])
-
-
-  // Death time timer
-  useEffect(() => {
-    let cronometer = null;
-    let lostTime = selectedMachine.currentProcess.deathTime;
-    if (selectedMachine.machineStatus.pause){
-      cronometer = setInterval(() => {
-        setDeathTime(formaterMS(lostTime));
-        lostTime += 100;
-      }, 100);
-    } else {
-      setDeathTime(formaterMS(lostTime));
-      clearInterval(cronometer);
-    }
-
-    return () => clearInterval(cronometer);
-  }, [selectedMachineName, selectedMachine.machineStatus.pause])
-
+  let modalWindow
+  const modalStatus = useSelector(state => state.modalStatus)
 
 
   return (
-    <div className="text-center w-5/12 pt-2 mt-1">
+    <div className="text-center w-5/12 mt-2">
 
       {modalWindow}
 
@@ -316,9 +234,9 @@ function MachineInfo() {
           <div
             className="progress-bar progress-bar-striped progress-bar-animated bg-success"
             role="progressbar"
-            style={{ width: progresPercentage() }}
+            style={{ width: progressPrecentage()}}
           >
-            {progresPercentage()}
+            {progressPrecentage()}
           </div>
         </div>
       </div>
@@ -326,21 +244,26 @@ function MachineInfo() {
       <label 
         className="flex justify-center text-lg mt-3 font-semibold text-white"
       >
-        Producción total
+        Producción diaria
       </label>
+
       <div className="flex gap-x-4 justify-between mb-1">
         <div className="flex flex-col w-full">
           <label className="text-white">Piezas</label>
-          <label className="bg-white font-semibold rounded-sm">
+          <label 
+            className="bg-white font-semibold rounded-sm"
+          >
             {selectedMachine.dayProduction.totalParts}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo</label>
           <label className="bg-white font-semibold rounded-sm">
             {"N/A"}
           </label>
         </div>
+
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo muerto</label>
           <label className="bg-white font-semibold rounded-sm">

@@ -1,0 +1,27 @@
+#playBtn{
+    color: white;
+}
+#playBtn:hover{
+    color: rgb(132 204 22);
+}
+
+#pauseBtn{
+    color: white;
+}
+#pauseBtn:hover{
+    color: yellow;
+}
+
+#startBtn{
+    color: white;
+}
+#startBtn:hover{
+    color: rgb(132 204 22);
+}
+
+#stopBtn{
+    color: white;
+}
+#stopBtn:hover{
+    color: red;
+}

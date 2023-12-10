@@ -7,7 +7,8 @@ function NewDeleteButton(props) {
   return (
     <div className="flex h-full gap-2">
       <button
-        className='flex bg-green-900 hover:bg-green-700 rounded-sm h-7 p-2 items-center text-l font-normal text-white transition-all duration-75'
+        className='flex bg-green-900 hover:bg-green-700 rounded-sm h-7 p-2 user-select-none
+          items-center text-l font-normal text-white transition-all duration-75'
         onClick={() => props.newBtn ? props.newBtn() : console.log("New button")}
       >
         <img 
@@ -18,7 +19,8 @@ function NewDeleteButton(props) {
         Nuevo
       </button>
       <button 
-        className='flex bg-red-900 hover:bg-red-700 rounded-sm h-7 p-2 items-center text-l font-normal text-white transition-all duration-75'
+        className='flex bg-red-900 hover:bg-red-700 rounded-sm h-7 p-2 user-select-none
+          items-center text-l font-normal text-white transition-all duration-75'
         onClick={() => props.deleteBtn ? props.deleteBtn() : console.log("Delete button")}
       >
         <img 

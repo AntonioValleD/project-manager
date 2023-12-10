@@ -6,7 +6,6 @@ import { useEffect, useState } from "react"
 import { addMachineTab } from "../../features/machine_tabs/machineTabsSlice"
 import { openMachine } from "../../features/appIndexSlice/appIndexStatusSlice"
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
-import { formaterMS } from "../../functions/timeFromater"
 
 // React icons import
 import { AiFillEdit } from "react-icons/ai"

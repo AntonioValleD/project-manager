@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux"
 
 // Redux toolkit reducers
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { addProductionPart } from "../../features/machines/machineSlice"
 
 // Components
 import toast, { Toaster } from 'react-hot-toast'
@@ -16,7 +17,7 @@ import RedButton from "../assets/buttons/RedButton"
 import GreenButton from "../assets/buttons/GreenButton"
 
 
-function NewProductionPart() {
+function NewProductionPart(props) {
   // Hooks
   const dispatch = useDispatch()
 
@@ -24,15 +25,19 @@ function NewProductionPart() {
   // Redux state
   const projectList = useSelector(state => state.projectList)
 
+  const selectedMachineName = useSelector(state => state.machineTabs)
+    .find(machine => machine.selected === true).id
+
+  const selectedMachine = useSelector(state => state.machineList)
+    .find(machine => machine.name === selectedMachineName)
+
 
   // Local component state
   const [closeBtn, setCloseBtn] = useState(false)
 
-  const [newPart, setNewPart] = useState({})
-
   const [estimatedTime, setEstimatedTime] = useState({
     hours: 0,
-    minuts: 0,
+    minutes: 0,
   })
 
   const [productionProjectList, setProductionProjectList] = useState([
@@ -51,17 +56,20 @@ function NewProductionPart() {
   const [hoverPart, setHoverPart] = useState("")
 
   const [selectedPartInfo, setSelectedPartInfo] = useState({
+    index: 0,
     partName: "",
     material: "",
     quantity: 0,
     client: "",
   })
 
+  const [indexArray, setIndexArray] = useState([])
+
 
   // Input values
   const inputValues = (event) => {
-    setNewPart({
-      ...newPart,
+    setSelectedPartInfo({
+      ...selectedPartInfo,
       [event.target.name]: (event.target.value).toString(),
     })
   }
@@ -86,12 +94,69 @@ function NewProductionPart() {
 
 
   // Submit new part info
-  const submitNewPart = () => {
+  const checkPartInfo = () => {
     if (selectedProject === ""){
       toast.error("Seleccione una O.T.")
+      return false
+
     } else if (selectedPart === ""){
       toast.error("Seleccione una pieza")
+      return false
+
+    } else if (estimatedTime.hours === 0 && estimatedTime.minutes === 0){
+      hoursInputRef.current.focus()
+      toast.error("Ingrese un tiempo estimado")
+      return false
+
+    } else {
+      return true
     }
+  }
+
+  const submitNewPart = () => {
+    if (!checkPartInfo()){
+      return
+    }
+
+    let selectedProjectInfo = projectList.find(project => project.ot === selectedProject)
+
+    let newPartInfo = selectedProjectInfo.parts.find(part => part.id === selectedPart).partInfo
+
+    let selectedIndex = parseInt(selectedPartInfo.index) - 1
+
+    let status = ""
+
+    if (selectedMachine.parts[(selectedIndex - 1)].status === "Finalizado"){
+      status = "Siguiente"
+    } else {
+      status = "Pendiente"
+    }
+
+    let newPartModel = {
+      index: selectedIndex,
+      ot: selectedProject,
+      project: selectedProjectInfo.projectInfo.name,
+      partId: selectedPart,
+      name: newPartInfo.name,
+      quantity: newPartInfo.quantity,
+      finishedParts: 0,
+      material: newPartInfo.material,
+      client: selectedProjectInfo.projectInfo.client,
+      estimatedTime: {
+        hours: parseInt(estimatedTime.hours),
+        minutes: parseInt(estimatedTime.minutes),
+      },
+      status: status,
+    }
+
+    dispatch(addProductionPart({
+      machineName: selectedMachineName,
+      newPart: newPartModel,
+    }))
+
+    props.successFn("La pieza se añadio a la cola de producción")
+
+    closeWindow()
   }
 
   
@@ -111,9 +176,8 @@ function NewProductionPart() {
 
 
   // Input references
-  const indexInputRef = useRef(null)
   const hoursInputRef = useRef(null)
-  const minutsInputRef = useRef(null)
+  const minutesInputRef = useRef(null)
 
 
   // Load production project list
@@ -146,6 +210,23 @@ function NewProductionPart() {
   }, [projectList])
 
 
+  // Load index array
+  useEffect(() => {
+    let indexArray = []
+
+    for (let i = 0; i < selectedMachine.parts.length; i++){
+      if (selectedMachine.parts[i].status === "Pendiente" ||
+        selectedMachine.parts[i].status === "Siguiente"){
+        indexArray.push((selectedMachine.parts[i].index + 1).toString())
+      }
+    }
+
+    indexArray.push((selectedMachine.parts.length + 1).toString())
+
+    setIndexArray([...indexArray.reverse()])
+  }, [selectedMachine.parts])
+
+
   // Load selected part info
   useEffect(() => {
     if (selectedPart !== ""){
@@ -153,6 +234,7 @@ function NewProductionPart() {
       let currentPartInfo = currentProject.parts.find(part => part.id === selectedPart).partInfo
 
       setSelectedPartInfo({
+        index: (selectedMachine.parts.length + 1).toString(),
         partName: currentPartInfo.name,
         material: currentPartInfo.material,
         quantity: currentPartInfo.quantity,
@@ -338,11 +420,11 @@ function NewProductionPart() {
                 className="w-10/12">
                 <label className="font-medium">Minutos</label>
                 <input
-                  ref={minutsInputRef}
-                  value={estimatedTime.minuts}
+                  ref={minutesInputRef}
+                  value={estimatedTime.minutes}
                   type="number"
                   className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
-                  name="minuts"
+                  name="minutes"
                   onChange={(event) => estimatedTimeValues(event)}
                 />
               </div>
@@ -350,15 +432,24 @@ function NewProductionPart() {
               <div
                 className="w-8/12"
               >
-                <label className="font-medium">Posición</label>
-                <input
-                  ref={indexInputRef}
-                  value={newPart.index}
-                  type="number"
+                <label className="font-medium">Indice</label>
+                <select
+                  value={selectedPartInfo.index}
                   className="w-full border-blue-950 border-2 px-1 font-regular rounded-sm"
                   name="index"
                   onChange={(event) => inputValues(event)}
-                />
+                >
+                  {
+                    indexArray.map((partIndex) => (
+                      <option
+                        key={partIndex}
+                        value={partIndex}
+                      >
+                        {partIndex}
+                      </option>
+                    ))
+                  }
+                </select>
               </div>
             </div>
           </div>
@@ -366,7 +457,7 @@ function NewProductionPart() {
         </div>
 
         <div className="flex justify-end gap-x-4 mt-3">
-          <GreenButton btnText="Guardar" btnAction={submitNewPart} />
+          <GreenButton btnText="Añadir" btnAction={submitNewPart} />
           <RedButton btnText="Cancelar" btnAction={closeWindow} />
         </div>
       </div>
