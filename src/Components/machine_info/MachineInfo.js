@@ -5,19 +5,20 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import BlueButton from "../assets/buttons/BlueButton"
 import GreenButton from "../assets/buttons/GreenButton"
 import FinishProductionPart from "../modals/FinishProductionParts"
+import { DateTime } from "luxon"
 
 // Redux toolkit reducer import
 import { changeModalStatus } from "../../features/modalSlice/modalSlice"
+import { updateProcessTiming } from "../../features/machines/machineSlice"
 
 // Hook import
 import { useSelector, useDispatch } from "react-redux"
 import { useEffect, useState } from "react"
-import { formaterMS } from "../../functions/timeFromater"
 
 
 function MachineInfo() {
   // Hooks
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
 
   // Redux state
@@ -29,9 +30,16 @@ function MachineInfo() {
 
   const partInProcess = selectedMachine.parts.find(part => part.status === "En proceso")
 
+  const appConfig = useSelector(state => state.appConfig)
+
 
   // Local component state
   const [processTiming, setProcessTiming] = useState(selectedMachine.processTiming)
+
+  const [machineWorkTime, setMachineWorkTime] = useState("N/A")
+
+  const [machineDeathTime, setMachineDeathTime] = useState("N/A")
+
 
   // Progress percentage bar calculator
   const progressPrecentage = () => {
@@ -57,6 +65,39 @@ function MachineInfo() {
   // Modal window selector
   let modalWindow
   const modalStatus = useSelector(state => state.modalStatus)
+  console.log("hola");
+
+
+  // Machine work timer
+  useEffect(() => {
+    let timer
+
+    if (selectedMachine.machiningStatus.startedStatus && 
+      !selectedMachine.machiningStatus.pausedStatus){
+      timer = setInterval(() => {
+        setMachineWorkTime(DateTime.local().minus(appConfig.timing.shiftStart).toFormat("hh:mm:ss"))
+      }, 1000)
+    }
+
+    return () => clearInterval(timer)
+  }, [selectedMachine.machiningStatus])
+
+
+  // Machine death time timer
+  useEffect(() => {
+    let timer
+
+    if (!selectedMachine.machiningStatus.startedStatus ||
+      selectedMachine.machiningStatus.pausedStatus){
+      timer = setInterval(() => {
+        setMachineDeathTime(
+          DateTime.local().diff(DateTime.fromISO(selectedMachine.processTiming.pauseTime), ['hours', 'minutes', 'seconds']).toFormat("hh:mm:ss")
+        )
+      }, 1000)
+    }
+
+    return () => clearInterval(timer)
+  }, [selectedMachine.machiningStatus])
 
 
   return (
@@ -260,14 +301,14 @@ function MachineInfo() {
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo</label>
           <label className="bg-white font-semibold rounded-sm">
-            {"N/A"}
+            {machineWorkTime}
           </label>
         </div>
 
         <div className="flex flex-col w-full">
           <label className="text-white">Tiempo muerto</label>
           <label className="bg-white font-semibold rounded-sm">
-            {processTiming.deathTime}
+            {machineDeathTime}
           </label>
         </div>
       </div>

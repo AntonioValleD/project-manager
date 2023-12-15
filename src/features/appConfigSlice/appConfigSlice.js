@@ -5,9 +5,18 @@ const initialState = {
     token: "",
     serverUrl: "http://localhost:4000",
     timing: {
-      shiftStart: { hours: 8 },
-      mondayShiftEnd: { hours: 4 },
-      weekShiftEnd: { hours: 6 },
+      shiftStart: {
+        hours: 8,
+        minutes: 0
+      },
+      mondayShiftEnd: { 
+        hours: 4,
+        minutes: 0
+      },
+      weekShiftEnd: { 
+        hours: 6,
+        minutes: 0
+      },
     },
     userInfo: {
       id: 35,

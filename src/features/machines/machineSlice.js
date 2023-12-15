@@ -77,7 +77,11 @@ let initialState = [
       startTime: "N/A",
       pauseTime: "N/A",
       finishTime: "N/A",
-      deathTime: "N/A",
+      deathTime: {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+      },
     }
   }
 ]
@@ -186,7 +190,7 @@ export const machineSlice = createSlice({
         selectedPart.status = statusValue
       }
     },
-
+    /* */
     updateTotalParts: (state, action) => {
       let machineName = action.payload.machine
       let totalParts = action.payload.totalParts
@@ -197,6 +201,20 @@ export const machineSlice = createSlice({
         machine.totalParts = totalParts
       }
     },
+
+
+    // Process timing actions
+    updateProcessTiming: (state, action) => {
+      const machineName = action.payload.machineName
+      const timerName = action.payload.timerName
+      const timerValue = action.payload.timerValue
+
+      const selectedMachine = state.find(machine => machine.name === machineName)
+      if (selectedMachine){
+        selectedMachine.processTiming[timerName] = timerValue
+      }
+    },
+
   },
 })
 
@@ -213,5 +231,8 @@ export const {
   deleteProductionPart,
   changeMachiningStatus,
   changePartStatus,
+
+  // Process timing actions
+  updateProcessTiming,
 } = machineSlice.actions
 export default machineSlice.reducer

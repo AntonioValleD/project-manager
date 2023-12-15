@@ -12,10 +12,12 @@ import { changeModalStatus } from "../../features/modalSlice/modalSlice"
 import { 
   changeMachiningStatus,
   changePartStatus,
-  deleteProductionPart
+  deleteProductionPart,
+  updateProcessTiming,
 } from "../../features/machines/machineSlice"
 
 // Components
+import { DateTime } from "luxon"
 import toast, { Toaster } from 'react-hot-toast'
 import DataTable from "react-data-table-component"
 import NewDeleteButton from "../assets/buttons/NewDelete"
@@ -45,6 +47,9 @@ function ProductionTable() {
   const machiningStatus = selectedMachineInfo.machiningStatus
 
   const totalParts = selectedMachineInfo.parts.length
+
+  const appConfig = useSelector(state => state.appConfig)
+
 
   // Local state
   const [selectedPartIndex, setSelectedPartIndex] = useState("")
@@ -251,6 +256,12 @@ function ProductionTable() {
         statusValue: "Siguiente",
       }))
     } 
+
+    dispatch(updateProcessTiming({
+      machineName: selectedMachine,
+      timerName: "pauseTime",
+      timerValue: DateTime.local().toString(),
+    }))
     
     dispatch(changePartStatus({
       machineName: selectedMachine,
@@ -274,6 +285,12 @@ function ProductionTable() {
   }
 
   const pauseProduction = () => {
+    dispatch(updateProcessTiming({
+      machineName: selectedMachine,
+      timerName: "pauseTime",
+      timerValue: DateTime.local().toString(),
+    }))
+
     dispatch(changeMachiningStatus({
       machineName: selectedMachine,
       statusName: "pausedStatus",
@@ -371,52 +388,76 @@ function ProductionTable() {
           Cola de producción
         </label>
 
-        <div className="flex gap-x-6 items-center h-8">
-          <NewDeleteButton
-            newBtn={newBtn}
-            deleteBtn={deleteBtnConfirmation}
-          />
+        <div
+          className="flex justify-between"
+        >
+          <div className="flex gap-x-6 items-center h-8">
+            <NewDeleteButton
+              newBtn={newBtn}
+              deleteBtn={deleteBtnConfirmation}
+            />
 
-          {
-            machiningStatus.startedStatus ?
-              <label
-                className="text-3xl cursor-pointer ml-1"
-                id="stopBtn"
-                title="Finalizar producción de pieza"
-                onClick={() => stopProduction()}
-              >
-                <FaRegCircleStop />
-              </label> :
-              <label
-                className="text-4xl cursor-pointer"
-                id="startBtn"
-                title="Iniciar producción de pieza"
-                onClick={() => startProduction()}
-              >
-                <MdOutlineNotStarted />
-              </label>
-          }
+            {
+              machiningStatus.startedStatus ?
+                <label
+                  className="text-3xl cursor-pointer ml-1"
+                  id="stopBtn"
+                  title="Finalizar producción de pieza"
+                  onClick={() => stopProduction()}
+                >
+                  <FaRegCircleStop />
+                </label> :
+                <label
+                  className="text-4xl cursor-pointer"
+                  id="startBtn"
+                  title="Iniciar producción de pieza"
+                  onClick={() => startProduction()}
+                >
+                  <MdOutlineNotStarted />
+                </label>
+            }
 
-          {
-            machiningStatus.pausedStatus && machiningStatus.startedStatus ?
-              <label
-                className="text-3xl cursor-pointer"
-                id="playBtn"
-                title="Reanudar producción de pieza"
-                onClick={() => playProduction()}
-              >
-                <FaRegCirclePlay />
-              </label> : !machiningStatus.pausedStatus && machiningStatus.startedStatus ?
-              <label
-                className="text-3xl cursor-pointer"
-                id="pauseBtn"
-                title="Pausar producción de pieza"
-                onClick={() => pauseProduction()}
-              >
-                <FaRegCirclePause />
-              </label> :
-              null
-          }
+            {
+              machiningStatus.pausedStatus && machiningStatus.startedStatus ?
+                <label
+                  className="text-3xl cursor-pointer"
+                  id="playBtn"
+                  title="Reanudar producción de pieza"
+                  onClick={() => playProduction()}
+                >
+                  <FaRegCirclePlay />
+                </label> : !machiningStatus.pausedStatus && machiningStatus.startedStatus ?
+                <label
+                  className="text-3xl cursor-pointer"
+                  id="pauseBtn"
+                  title="Pausar producción de pieza"
+                  onClick={() => pauseProduction()}
+                >
+                  <FaRegCirclePause />
+                </label> :
+                null
+            }
+          </div>
+
+          <div
+            className="flex gap-x-3"
+          >
+            <label
+              className="text-white text-center"
+            >
+              Inicio de turno:
+            </label>
+
+            <label
+              className="text-white text-center font-semibold"
+            >
+              {
+                `${DateTime.fromObject(appConfig.timing.shiftStart)
+                  .toLocaleString(DateTime.TIME_SIMPLE)} hrs`
+              }
+            </label>
+          </div>
+
         </div>
       </div>
 
