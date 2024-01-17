@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/project-manager/static/css/main.ce4ed1ec.css",
-    "main.js": "/project-manager/static/js/main.bfbcaff1.js",
+    "main.js": "/project-manager/static/js/main.1dca18af.js",
     "static/media/Plano.pdf": "/project-manager/static/media/Plano.033f0cae6603a22bb238.pdf",
     "index.html": "/project-manager/index.html",
     "main.ce4ed1ec.css.map": "/project-manager/static/css/main.ce4ed1ec.css.map",
-    "main.bfbcaff1.js.map": "/project-manager/static/js/main.bfbcaff1.js.map"
+    "main.1dca18af.js.map": "/project-manager/static/js/main.1dca18af.js.map"
   },
   "entrypoints": [
     "static/css/main.ce4ed1ec.css",
-    "static/js/main.bfbcaff1.js"
+    "static/js/main.1dca18af.js"
   ]
 }
